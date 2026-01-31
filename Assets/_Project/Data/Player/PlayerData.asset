@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 290ee7355a7376c45b7e64b6ab3edb03, type: 3}
+  m_Name: PlayerData
+  m_EditorClassIdentifier: 
+  moveSpeed: 8
+  jumpForce: 16.5
+  doubleJumpForce: 16.5
+  maxJumps: 2
+  wallSlideSpeed: 3
+  wallClingDuration: 0.5
+  wallJumpForce: {x: 8, y: 16.5}
+  gravityScale: 3
+  fallMultiplier: 2.5
+  lowJumpMultiplier: 2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  oneWayPlatformLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  groundCheckRadius: 0.2
+  wallCheckDistance: 0.5
