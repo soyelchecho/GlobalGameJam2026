@@ -13,6 +13,7 @@ namespace Gameplay.Player
 
         public PlayerState CurrentStateType => currentStateType;
         public IPlayerState CurrentState => currentState;
+        public float CurrentStateTimer => (currentState as PlayerStateBase)?.StateTimer ?? 0f;
 
         public PlayerStateMachine(PlayerController playerController)
         {

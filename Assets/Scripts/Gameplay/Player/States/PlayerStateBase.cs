@@ -6,6 +6,8 @@ namespace Gameplay.Player.States
     {
         protected float stateTimer;
 
+        public float StateTimer => stateTimer;
+
         public virtual void Enter(PlayerController player)
         {
             stateTimer = 0f;

@@ -12,6 +12,7 @@ namespace Gameplay.Player.States
             wallDirection = player.WallDirection;
             player.Motor.StartWallCling();
             player.Events.RaiseWallCling(player.transform.position);
+            player.MarkWallClingUsed();
         }
 
         public override void Exit(PlayerController player)
@@ -27,7 +28,7 @@ namespace Gameplay.Player.States
             float clingDuration = player.GetModifiedWallClingDuration(player.Data.wallClingDuration);
             if (stateTimer >= clingDuration)
             {
-                player.ChangeState(PlayerState.Falling);
+                ExitToFalling(player);
             }
         }
 
@@ -35,7 +36,7 @@ namespace Gameplay.Player.States
         {
             if (!player.IsTouchingWall)
             {
-                player.ChangeState(PlayerState.Falling);
+                ExitToFalling(player);
                 return;
             }
 
@@ -45,6 +46,11 @@ namespace Gameplay.Player.States
             }
         }
 
+        private void ExitToFalling(PlayerController player)
+        {
+            player.ChangeState(PlayerState.Falling);
+        }
+
         public override void OnJumpPressed(PlayerController player)
         {
             int newDirection = -wallDirection;
@@ -52,6 +58,7 @@ namespace Gameplay.Player.States
             player.Events.RaiseDirectionChanged(newDirection);
             player.Events.RaiseWallJump(newDirection);
 
+            player.ResetWallCling();
             player.ChangeState(PlayerState.WallJump);
         }
     }

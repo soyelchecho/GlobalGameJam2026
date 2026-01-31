@@ -19,7 +19,12 @@ namespace Gameplay.Player.States
                 return;
             }
 
-            player.Motor.Move(player.MoveDirection);
+            bool pushingIntoWall = player.IsTouchingWall && player.WallDirection == player.MoveDirection;
+
+            if (!pushingIntoWall || player.CanWallCling)
+            {
+                player.Motor.Move(player.MoveDirection);
+            }
 
             if (player.Motor.Velocity.y <= 0)
             {
@@ -27,7 +32,7 @@ namespace Gameplay.Player.States
                 return;
             }
 
-            if (player.IsTouchingWall && player.WallDirection == player.MoveDirection)
+            if (player.CanWallCling && pushingIntoWall)
             {
                 player.ChangeState(PlayerState.WallCling);
             }
@@ -56,7 +61,7 @@ namespace Gameplay.Player.States
                 if (Mathf.Abs(contact.normal.x) > 0.5f)
                 {
                     int wallDir = contact.normal.x > 0 ? -1 : 1;
-                    if (wallDir == player.MoveDirection)
+                    if (wallDir == player.MoveDirection && player.CanWallCling)
                     {
                         player.Events.RaiseWallHit(contact.normal);
                         player.ChangeState(PlayerState.WallCling);

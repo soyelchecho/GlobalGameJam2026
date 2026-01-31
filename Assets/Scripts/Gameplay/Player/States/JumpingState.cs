@@ -6,7 +6,12 @@ namespace Gameplay.Player.States
     {
         public override void FixedUpdate(PlayerController player)
         {
-            player.Motor.Move(player.MoveDirection);
+            bool pushingIntoWall = player.IsTouchingWall && player.WallDirection == player.MoveDirection;
+
+            if (!pushingIntoWall || player.CanWallCling)
+            {
+                player.Motor.Move(player.MoveDirection);
+            }
 
             if (player.Motor.Velocity.y <= 0)
             {
@@ -14,7 +19,7 @@ namespace Gameplay.Player.States
                 return;
             }
 
-            if (player.IsTouchingWall && player.WallDirection == player.MoveDirection)
+            if (player.CanWallCling && pushingIntoWall)
             {
                 player.ChangeState(PlayerState.WallCling);
             }
@@ -22,7 +27,19 @@ namespace Gameplay.Player.States
 
         public override void OnJumpPressed(PlayerController player)
         {
-            if (CanJump(player))
+            if (!CanJump(player)) return;
+
+            // If touching wall in move direction, do wall jump
+            if (player.IsTouchingWall && player.WallDirection == player.MoveDirection)
+            {
+                int newDirection = -player.MoveDirection;
+                player.MoveDirection = newDirection;
+                player.Events.RaiseDirectionChanged(newDirection);
+                player.Events.RaiseWallJump(newDirection);
+                player.ResetWallCling();
+                player.ChangeState(PlayerState.WallJump);
+            }
+            else
             {
                 PerformJump(player, player.Data.doubleJumpForce);
             }
@@ -36,7 +53,7 @@ namespace Gameplay.Player.States
                 if (Mathf.Abs(contact.normal.x) > 0.5f)
                 {
                     int wallDir = contact.normal.x > 0 ? -1 : 1;
-                    if (wallDir == player.MoveDirection)
+                    if (wallDir == player.MoveDirection && player.CanWallCling)
                     {
                         player.Events.RaiseWallHit(contact.normal);
                         player.ChangeState(PlayerState.WallCling);

@@ -19,6 +19,7 @@ namespace Gameplay.Player
 
         private int moveDirection;
         private int jumpCount;
+        private bool hasUsedWallCling;
 
         public PlayerData Data => data;
         public PlayerMotor Motor => motor;
@@ -49,6 +50,17 @@ namespace Gameplay.Player
         public bool IsOnOneWayPlatform => motor.IsOnOneWayPlatform();
         public bool IsTouchingWall => motor.GetWallDirection() != 0;
         public int WallDirection => motor.GetWallDirection();
+        public bool CanWallCling => !hasUsedWallCling;
+
+        public void MarkWallClingUsed()
+        {
+            hasUsedWallCling = true;
+        }
+
+        public void ResetWallCling()
+        {
+            hasUsedWallCling = false;
+        }
 
         private void Awake()
         {
@@ -168,13 +180,14 @@ namespace Gameplay.Player
         {
             if (!Application.isPlaying) return;
 
-            GUILayout.BeginArea(new Rect(10, 10, 220, 180));
-            GUILayout.Label($"State: {stateMachine.CurrentStateType}");
+            GUILayout.BeginArea(new Rect(10, 10, 280, 220));
+            GUILayout.Label($"State: {stateMachine.CurrentStateType} ({stateMachine.CurrentStateTimer:F2}s)");
             GUILayout.Label($"Direction: {moveDirection}");
             GUILayout.Label($"Jump Count: {jumpCount}/{data.maxJumps}");
             GUILayout.Label($"Grounded: {IsGrounded}");
             GUILayout.Label($"One-Way Platform: {IsOnOneWayPlatform}");
             GUILayout.Label($"Wall: {IsTouchingWall} (Dir: {WallDirection})");
+            GUILayout.Label($"Wall Cling: {(hasUsedWallCling ? "USED" : "READY")}");
             GUILayout.Label($"Velocity: {motor.Velocity:F1}");
             GUILayout.EndArea();
         }

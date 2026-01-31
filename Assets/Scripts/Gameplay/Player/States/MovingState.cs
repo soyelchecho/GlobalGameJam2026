@@ -8,11 +8,19 @@ namespace Gameplay.Player.States
         {
             base.Enter(player);
             player.JumpCount = 0;
+            player.ResetWallCling();
 
             float fallSpeed = Mathf.Abs(player.Motor.Velocity.y);
             if (fallSpeed > 1f)
             {
                 player.Events.RaiseLand(fallSpeed);
+            }
+
+            // If already touching wall in move direction (e.g. landed while sliding), flip
+            if (player.IsTouchingWall && player.WallDirection == player.MoveDirection)
+            {
+                player.MoveDirection = -player.MoveDirection;
+                player.Events.RaiseDirectionChanged(player.MoveDirection);
             }
         }
 
