@@ -32,25 +32,32 @@ public class TouchInputHandler : MonoBehaviour
     public UnityEvent<Vector2> OnDragEnd;
 
     [Header("Tap Settings")]
-    [SerializeField] private float tapTimeThreshold = 0.15f;
-    [SerializeField] private float tapDistanceThreshold = 10f;
+    [SerializeField] private float tapTimeThreshold = 0.2f;
+    [SerializeField] private float tapDistanceThreshold = 30f;
 
     [Header("Swipe Settings")]
     [Tooltip("Minimum distance to trigger swipe (pixels)")]
-    [SerializeField] private float swipeDistanceThreshold = 20f;
+    [SerializeField] private float swipeDistanceThreshold = 50f;
 
     [Tooltip("Minimum velocity to trigger early swipe (pixels/second)")]
-    [SerializeField] private float swipeVelocityThreshold = 100f;
+    [SerializeField] private float swipeVelocityThreshold = 300f;
 
     [Tooltip("Max time for a swipe gesture (seconds)")]
-    [SerializeField] private float swipeTimeThreshold = 1f;
+    [SerializeField] private float swipeTimeThreshold = 0.5f;
+
+    [Tooltip("Time window where taps are prioritized over swipes (seconds)")]
+    [SerializeField] private float tapPriorityWindow = 0.1f;
 
     [Header("Drag Settings")]
     [SerializeField] private float dragThreshold = 15f;
 
+    [Tooltip("Minimum distance moved to fire OnDrag event (reduces event spam)")]
+    [SerializeField] private float dragUpdateThreshold = 5f;
+
     // State
     private Vector2 touchStartPos;
     private Vector2 lastTouchPos;
+    private Vector2 lastDragEventPos; // Last position where OnDrag was fired
     private float touchStartTime;
     private float lastTouchTime;
     private bool isDragging;
@@ -66,7 +73,7 @@ public class TouchInputHandler : MonoBehaviour
 
     [Header("Debug (Editor Only)")]
     [SerializeField] private bool enableKeyboardSimulation = true;
-    [SerializeField] private bool showDebugLogs = true;
+    [SerializeField] private bool showDebugLogs = false;
 
     private void Update()
     {
@@ -214,13 +221,20 @@ public class TouchInputHandler : MonoBehaviour
             if (distance > dragThreshold)
             {
                 isDragging = true;
+                lastDragEventPos = touchStartPos;
                 OnDragStart?.Invoke(touchStartPos);
             }
         }
 
+        // Only fire OnDrag if position changed beyond threshold (reduces event spam)
         if (isDragging && !swipeDetected)
         {
-            OnDrag?.Invoke(position);
+            float dragDelta = Vector2.Distance(position, lastDragEventPos);
+            if (dragDelta >= dragUpdateThreshold)
+            {
+                lastDragEventPos = position;
+                OnDrag?.Invoke(position);
+            }
         }
     }
 
@@ -231,10 +245,12 @@ public class TouchInputHandler : MonoBehaviour
         float touchDuration = Time.unscaledTime - touchStartTime;
         float distance = Vector2.Distance(position, touchStartPos);
 
+#if UNITY_EDITOR
         if (showDebugLogs)
         {
             Debug.Log($"[Touch] EndTouch - Duration: {touchDuration:F3}s, Distance: {distance:F1}px, Velocity: {velocity.magnitude:F1}px/s");
         }
+#endif
 
         // Try final swipe detection if not already detected
         if (!swipeDetected)
@@ -247,13 +263,17 @@ public class TouchInputHandler : MonoBehaviour
         {
             if (touchDuration < tapTimeThreshold && distance < tapDistanceThreshold)
             {
+#if UNITY_EDITOR
                 if (showDebugLogs) Debug.Log("[Touch] TAP detected");
+#endif
                 OnTap?.Invoke(position);
             }
+#if UNITY_EDITOR
             else if (showDebugLogs)
             {
                 Debug.Log($"[Touch] No tap - duration ok: {touchDuration < tapTimeThreshold}, distance ok: {distance < tapDistanceThreshold}");
             }
+#endif
         }
 
         // End drag
@@ -278,8 +298,17 @@ public class TouchInputHandler : MonoBehaviour
         // Don't detect swipe if too much time has passed
         if (touchDuration > swipeTimeThreshold) return;
 
+        // During tap priority window, don't detect swipes (let quick taps complete)
+        if (!isFinalCheck && touchDuration < tapPriorityWindow) return;
+
         Vector2 delta = currentPos - touchStartPos;
         float distance = delta.magnitude;
+
+        // On final check, if within tap thresholds, don't treat as swipe (will be detected as tap)
+        if (isFinalCheck && touchDuration < tapTimeThreshold && distance < tapDistanceThreshold)
+        {
+            return;
+        }
 
         // Check velocity-based early detection
         float speed = velocity.magnitude;
@@ -317,7 +346,9 @@ public class TouchInputHandler : MonoBehaviour
 
     private void FireSwipeEvent(SwipeDirection direction)
     {
+#if UNITY_EDITOR
         if (showDebugLogs) Debug.Log($"[Touch] SWIPE detected: {direction}");
+#endif
 
         OnSwipe?.Invoke(direction);
 

@@ -20,6 +20,9 @@ namespace Gameplay.Player
         private float originalGravityScale;
         private Coroutine dropThroughCoroutine;
 
+        // Pre-allocated array to avoid GC allocation
+        private readonly ContactPoint2D[] contactsBuffer = new ContactPoint2D[10];
+
         public Rigidbody2D Rigidbody => rb;
         public Vector2 Velocity => rb.velocity;
         public bool IsDropping { get; private set; }
@@ -164,17 +167,16 @@ namespace Gameplay.Player
         /// </summary>
         public bool IsBlockedHorizontally(int direction)
         {
-            ContactPoint2D[] contacts = new ContactPoint2D[10];
-            int contactCount = rb.GetContacts(contacts);
+            int contactCount = rb.GetContacts(contactsBuffer);
 
             for (int i = 0; i < contactCount; i++)
             {
                 // Check if contact normal is horizontal (hitting a side)
-                if (Mathf.Abs(contacts[i].normal.x) > 0.5f)
+                if (Mathf.Abs(contactsBuffer[i].normal.x) > 0.5f)
                 {
                     // normal.x > 0 means wall is to the LEFT (pushing us right)
                     // normal.x < 0 means wall is to the RIGHT (pushing us left)
-                    int blockDirection = contacts[i].normal.x > 0 ? -1 : 1;
+                    int blockDirection = contactsBuffer[i].normal.x > 0 ? -1 : 1;
                     if (blockDirection == direction)
                     {
                         return true;
