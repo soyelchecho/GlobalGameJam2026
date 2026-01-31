@@ -15,8 +15,8 @@ namespace Gameplay.Player
         [Header("Initial Settings")]
         [SerializeField] private int initialDirection = 1;
 
-        [Header("Mobile Input")]
-        [SerializeField] private float swipeThreshold = 50f;
+        // Note: Swipe handling moved to TouchInputHandler events
+        // Connected via PlayerMaskController (up/down) and HandleSwipeLeft/Right (break attacks)
 
         [Header("Break Attack")]
         [SerializeField] private float breakAttackRange = 1.5f;
@@ -30,7 +30,6 @@ namespace Gameplay.Player
         private int moveDirection;
         private int jumpCount;
         private bool hasUsedWallCling;
-        private Vector2 dragStartPosition;
 
         public PlayerData Data => data;
         public PlayerMotor Motor => motor;
@@ -106,18 +105,15 @@ namespace Gameplay.Player
 
             // Subscribe to input events
             touchInputHandler.OnTap.AddListener(HandleTap);
-            touchInputHandler.OnDragStart.AddListener(HandleDragStart);
-            touchInputHandler.OnDragEnd.AddListener(HandleDragEnd);
             touchInputHandler.OnSwipeLeft.AddListener(HandleSwipeLeft);
             touchInputHandler.OnSwipeRight.AddListener(HandleSwipeRight);
+            // Note: OnSwipeUp/Down handled by PlayerMaskController
         }
 
         private void OnDestroy()
         {
             // Unsubscribe to prevent memory leaks
             touchInputHandler.OnTap.RemoveListener(HandleTap);
-            touchInputHandler.OnDragStart.RemoveListener(HandleDragStart);
-            touchInputHandler.OnDragEnd.RemoveListener(HandleDragEnd);
             touchInputHandler.OnSwipeLeft.RemoveListener(HandleSwipeLeft);
             touchInputHandler.OnSwipeRight.RemoveListener(HandleSwipeRight);
         }
@@ -149,49 +145,6 @@ namespace Gameplay.Player
         private void HandleTap(Vector2 position)
         {
             OnJumpInput();
-        }
-
-        private void HandleDragStart(Vector2 position)
-        {
-            dragStartPosition = position;
-        }
-
-        /// <summary>
-        /// Handles swipe gestures for mobile controls.
-        /// - Swipe Down: Equips the default mask.
-        /// - Swipe Up: Unequips the current mask.
-        /// - Swipe Left/Right: Triggers a placeholder "hit" action.
-        /// </summary>
-        private void HandleDragEnd(Vector2 position)
-        {
-            Vector2 swipeDelta = position - dragStartPosition;
-
-            // Prioritize vertical swipes over horizontal ones
-            if (Mathf.Abs(swipeDelta.y) > Mathf.Abs(swipeDelta.x))
-            {
-                if (swipeDelta.y > swipeThreshold) // Up
-                {
-                    Debug.Log("Side swipe action - Hit Up");
-                    maskManager.UnequipCurrentMask();
-                }
-                else if (swipeDelta.y < -swipeThreshold) // Down
-                {
-                Debug.Log("Side swipe action - Hit Down");
-                    maskManager.EquipStartingMask();
-                }
-            }
-            // Horizontal swipes
-            else
-            {
-                if (swipeDelta.x > swipeThreshold) // Right
-                {
-                    Debug.Log("Side swipe action - Hit Right");
-                }
-                else if (swipeDelta.x < -swipeThreshold) // Left
-                {
-                    Debug.Log("Side swipe action - Hit Left");
-                }
-            }
         }
 
         public void TryDropThroughPlatform()
