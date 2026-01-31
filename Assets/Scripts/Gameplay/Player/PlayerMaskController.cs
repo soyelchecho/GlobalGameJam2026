@@ -44,6 +44,9 @@ namespace Gameplay.Player
 
         private void OnSwipeUp()
         {
+#if UNITY_EDITOR
+            Debug.Log("[PlayerMaskController] Swipe Up - Equip mask");
+#endif
             if (maskManager == null || timeMask == null) return;
 
             // Only equip if not already wearing this mask
@@ -55,6 +58,9 @@ namespace Gameplay.Player
 
         private void OnSwipeDown()
         {
+#if UNITY_EDITOR
+            Debug.Log("[PlayerMaskController] Swipe Down - Unequip mask");
+#endif
             if (maskManager == null) return;
 
             // Unequip if wearing any mask

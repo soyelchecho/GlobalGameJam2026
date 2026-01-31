@@ -73,7 +73,7 @@ public class TouchInputHandler : MonoBehaviour
 
     [Header("Debug (Editor Only)")]
     [SerializeField] private bool enableKeyboardSimulation = true;
-    [SerializeField] private bool showDebugLogs = false;
+    [SerializeField] private bool showDebugLogs = true;
 
     private void Update()
     {

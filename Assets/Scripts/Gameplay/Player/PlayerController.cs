@@ -129,10 +129,7 @@ namespace Gameplay.Player
                 OnJumpInput();
             }
 
-            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                TryDropThroughPlatform();
-            }
+            // S/DownArrow now used for swipe down (mask unequip) in TouchInputHandler
             #endif
         }
 
