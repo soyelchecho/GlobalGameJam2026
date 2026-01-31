@@ -1,5 +1,6 @@
 using UnityEngine;
 using Gameplay.Masks;
+using Gameplay.Interactables;
 
 namespace Gameplay.Player
 {
@@ -16,6 +17,10 @@ namespace Gameplay.Player
 
         [Header("Mobile Input")]
         [SerializeField] private float swipeThreshold = 50f;
+
+        [Header("Break Attack")]
+        [SerializeField] private float breakAttackRange = 1.5f;
+        [SerializeField] private LayerMask breakableLayer;
 
         private PlayerMotor motor;
         private PlayerStateMachine stateMachine;
@@ -103,6 +108,8 @@ namespace Gameplay.Player
             touchInputHandler.OnTap.AddListener(HandleTap);
             touchInputHandler.OnDragStart.AddListener(HandleDragStart);
             touchInputHandler.OnDragEnd.AddListener(HandleDragEnd);
+            touchInputHandler.OnSwipeLeft.AddListener(HandleSwipeLeft);
+            touchInputHandler.OnSwipeRight.AddListener(HandleSwipeRight);
         }
 
         private void OnDestroy()
@@ -111,6 +118,8 @@ namespace Gameplay.Player
             touchInputHandler.OnTap.RemoveListener(HandleTap);
             touchInputHandler.OnDragStart.RemoveListener(HandleDragStart);
             touchInputHandler.OnDragEnd.RemoveListener(HandleDragEnd);
+            touchInputHandler.OnSwipeLeft.RemoveListener(HandleSwipeLeft);
+            touchInputHandler.OnSwipeRight.RemoveListener(HandleSwipeRight);
         }
 
         private void Update()
@@ -191,6 +200,54 @@ namespace Gameplay.Player
             {
                 motor.DropThroughPlatform();
             }
+        }
+
+        private void HandleSwipeLeft()
+        {
+            TryBreakInDirection(-1);
+        }
+
+        private void HandleSwipeRight()
+        {
+            TryBreakInDirection(1);
+        }
+
+        /// <summary>
+        /// Attempts to break a breakable object in the given direction
+        /// </summary>
+        public void TryBreakInDirection(int direction)
+        {
+            // Get current mask ID (if any)
+            string currentMaskId = maskManager?.CurrentMask?.MaskId ?? "";
+
+            // Raycast in the direction
+            Vector2 origin = transform.position;
+            Vector2 dir = new Vector2(direction, 0);
+
+            // Use wall layer if breakableLayer is not set
+            LayerMask layerToCheck = breakableLayer != 0 ? breakableLayer : data.wallLayer;
+
+            RaycastHit2D hit = Physics2D.Raycast(origin, dir, breakAttackRange, layerToCheck);
+
+            if (hit.collider != null)
+            {
+                // Check if it has IBreakable component
+                IBreakable breakable = hit.collider.GetComponent<IBreakable>();
+
+                if (breakable != null)
+                {
+                    if (breakable is BreakableObject breakableObj)
+                    {
+                        breakableObj.TryBreak(currentMaskId);
+                    }
+                    else if (breakable.CanBreak(currentMaskId))
+                    {
+                        breakable.Break();
+                    }
+                }
+            }
+
+            Debug.Log($"[Player] Swipe attack in direction {direction}, mask: {(string.IsNullOrEmpty(currentMaskId) ? "none" : currentMaskId)}");
         }
 
         public void OnJumpInput()
