@@ -24,12 +24,12 @@ MonoBehaviour:
   lowJumpMultiplier: 2
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   oneWayPlatformLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
   wallLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   groundCheckRadius: 0.2
   wallCheckDistance: 0.5
