@@ -7,14 +7,18 @@ namespace Gameplay.Player.States
         public override void FixedUpdate(PlayerController player)
         {
             bool pushingIntoWall = player.IsTouchingWall && player.WallDirection == player.MoveDirection;
+            bool blockedHorizontally = player.Motor.IsBlockedHorizontally(player.MoveDirection);
 
-            // Don't push into wall if can't wall cling (let player slide down)
-            if (!pushingIntoWall || player.CanWallCling)
+            // Don't push horizontally if:
+            // 1. Pushing into wall and can't cling (slide down)
+            // 2. Blocked by any surface (platform side, etc.)
+            if ((!pushingIntoWall || player.CanWallCling) && !blockedHorizontally)
             {
                 player.Motor.Move(player.MoveDirection);
             }
 
-            if (player.IsGrounded)
+            // Only land if actually falling (not jumping through a one-way platform)
+            if (player.IsGrounded && player.Motor.Velocity.y <= 0.1f)
             {
                 player.ChangeState(PlayerState.Moving);
                 return;
@@ -52,8 +56,14 @@ namespace Gameplay.Player.States
         {
             if (((1 << collision.gameObject.layer) & player.Data.groundLayer) != 0)
             {
-                player.ChangeState(PlayerState.Moving);
-                return;
+                // Only land if hitting from ABOVE (normal pointing up)
+                ContactPoint2D contact = collision.GetContact(0);
+                if (contact.normal.y > 0.5f)
+                {
+                    player.ChangeState(PlayerState.Moving);
+                    return;
+                }
+                // If hitting from the side, don't change state (let player slide down)
             }
 
             if (((1 << collision.gameObject.layer) & player.Data.wallLayer) != 0)

@@ -20,8 +20,10 @@ namespace Gameplay.Player.States
             }
 
             bool pushingIntoWall = player.IsTouchingWall && player.WallDirection == player.MoveDirection;
+            bool blockedHorizontally = player.Motor.IsBlockedHorizontally(player.MoveDirection);
 
-            if (!pushingIntoWall || player.CanWallCling)
+            // Don't push horizontally if blocked by any surface
+            if ((!pushingIntoWall || player.CanWallCling) && !blockedHorizontally)
             {
                 player.Motor.Move(player.MoveDirection);
             }
@@ -51,8 +53,13 @@ namespace Gameplay.Player.States
         {
             if (((1 << collision.gameObject.layer) & player.Data.groundLayer) != 0)
             {
-                player.ChangeState(PlayerState.Moving);
-                return;
+                // Only land if hitting from ABOVE (normal pointing up)
+                ContactPoint2D contact = collision.GetContact(0);
+                if (contact.normal.y > 0.5f)
+                {
+                    player.ChangeState(PlayerState.Moving);
+                    return;
+                }
             }
 
             if (((1 << collision.gameObject.layer) & player.Data.wallLayer) != 0)

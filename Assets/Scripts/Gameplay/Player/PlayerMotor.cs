@@ -102,13 +102,45 @@ namespace Gameplay.Player
         public bool CheckGrounded()
         {
             if (groundCheck == null) return false;
-            return Physics2D.OverlapCircle(groundCheck.position, data.groundCheckRadius, data.AllGroundLayers);
+
+            // If moving upward, we're not grounded
+            // This prevents false positives when jumping through one-way platforms
+            if (rb.velocity.y > 0.5f) return false;
+
+            // Use raycast downward
+            RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, data.groundCheckRadius, data.AllGroundLayers);
+
+            if (hit.collider == null) return false;
+
+            // Only grounded if the surface normal points UP (we're on top, not inside/below)
+            // normal.y > 0.7 means surface is roughly horizontal (floor)
+            if (hit.normal.y <= 0.7f) return false;
+
+            // For one-way platforms: make sure player is FULLY above, not passing through
+            if (((1 << hit.collider.gameObject.layer) & data.oneWayPlatformLayer) != 0)
+            {
+                // Player's bottom must be at or above the platform's top surface
+                float playerBottom = playerCollider.bounds.min.y;
+                float platformTop = hit.collider.bounds.max.y;
+
+                // Small tolerance (0.05) for floating point precision
+                if (playerBottom < platformTop - 0.05f)
+                {
+                    return false; // Still passing through, not standing on top
+                }
+            }
+
+            return true;
         }
 
         public bool IsOnOneWayPlatform()
         {
             if (groundCheck == null) return false;
-            return Physics2D.OverlapCircle(groundCheck.position, data.groundCheckRadius, data.oneWayPlatformLayer);
+            RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, data.groundCheckRadius, data.oneWayPlatformLayer);
+
+            if (hit.collider == null) return false;
+
+            return hit.normal.y > 0.7f;
         }
 
         public bool CheckWall(int direction)
@@ -124,6 +156,32 @@ namespace Gameplay.Player
             if (CheckWall(1)) return 1;
             if (CheckWall(-1)) return -1;
             return 0;
+        }
+
+        /// <summary>
+        /// Checks if player is blocked horizontally by ANY collider (walls, platforms, etc.)
+        /// Uses actual collision contacts from the rigidbody.
+        /// </summary>
+        public bool IsBlockedHorizontally(int direction)
+        {
+            ContactPoint2D[] contacts = new ContactPoint2D[10];
+            int contactCount = rb.GetContacts(contacts);
+
+            for (int i = 0; i < contactCount; i++)
+            {
+                // Check if contact normal is horizontal (hitting a side)
+                if (Mathf.Abs(contacts[i].normal.x) > 0.5f)
+                {
+                    // normal.x > 0 means wall is to the LEFT (pushing us right)
+                    // normal.x < 0 means wall is to the RIGHT (pushing us left)
+                    int blockDirection = contacts[i].normal.x > 0 ? -1 : 1;
+                    if (blockDirection == direction)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public void SetVelocity(Vector2 velocity)
@@ -195,11 +253,12 @@ namespace Gameplay.Player
         {
             if (data == null) return;
 
-            // Ground check (green = solid, yellow = includes one-way)
+            // Ground check (raycast downward)
             if (groundCheck != null)
             {
                 Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(groundCheck.position, data.groundCheckRadius);
+                Gizmos.DrawLine(groundCheck.position, groundCheck.position + Vector3.down * data.groundCheckRadius);
+                Gizmos.DrawWireSphere(groundCheck.position + Vector3.down * data.groundCheckRadius, 0.05f);
             }
 
             // Wall check

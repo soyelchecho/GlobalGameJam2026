@@ -7,8 +7,10 @@ namespace Gameplay.Player.States
         public override void FixedUpdate(PlayerController player)
         {
             bool pushingIntoWall = player.IsTouchingWall && player.WallDirection == player.MoveDirection;
+            bool blockedHorizontally = player.Motor.IsBlockedHorizontally(player.MoveDirection);
 
-            if (!pushingIntoWall || player.CanWallCling)
+            // Don't push horizontally if blocked by any surface
+            if ((!pushingIntoWall || player.CanWallCling) && !blockedHorizontally)
             {
                 player.Motor.Move(player.MoveDirection);
             }
