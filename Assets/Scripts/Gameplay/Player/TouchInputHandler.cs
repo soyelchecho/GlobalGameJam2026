@@ -258,20 +258,21 @@ public class TouchInputHandler : MonoBehaviour
             TryDetectSwipe(position, true);
         }
 
-        // Check for tap (short duration, small distance, no swipe)
+        // Check for tap (small distance = tap, regardless of duration)
+        // This allows both quick taps and longer "hold and release" to register as taps
         if (!swipeDetected && !isDragging)
         {
-            if (touchDuration < tapTimeThreshold && distance < tapDistanceThreshold)
+            if (distance < tapDistanceThreshold)
             {
 #if UNITY_EDITOR
-                if (showDebugLogs) Debug.Log("[Touch] TAP detected");
+                if (showDebugLogs) Debug.Log($"[Touch] TAP detected (duration: {touchDuration:F2}s)");
 #endif
                 OnTap?.Invoke(position);
             }
 #if UNITY_EDITOR
             else if (showDebugLogs)
             {
-                Debug.Log($"[Touch] No tap - duration ok: {touchDuration < tapTimeThreshold}, distance ok: {distance < tapDistanceThreshold}");
+                Debug.Log($"[Touch] No tap - distance: {distance:F1}px (threshold: {tapDistanceThreshold}px)");
             }
 #endif
         }
