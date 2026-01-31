@@ -27,9 +27,7 @@ namespace Gameplay.Player.States
 
         public override void OnJumpPressed(PlayerController player)
         {
-            if (!CanJump(player)) return;
-
-            // If touching wall in move direction, do wall jump
+            // Wall jump from wall - always allowed (doesn't consume jump count)
             if (player.IsTouchingWall && player.WallDirection == player.MoveDirection)
             {
                 int newDirection = -player.MoveDirection;
@@ -38,8 +36,11 @@ namespace Gameplay.Player.States
                 player.Events.RaiseWallJump(newDirection);
                 player.ResetWallCling();
                 player.ChangeState(PlayerState.WallJump);
+                return;
             }
-            else
+
+            // Regular double jump - requires available jumps
+            if (CanJump(player))
             {
                 PerformJump(player, player.Data.doubleJumpForce);
             }

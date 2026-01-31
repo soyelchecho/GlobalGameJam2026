@@ -4,6 +4,7 @@ namespace Gameplay.Player.States
 {
     public class WallClingState : PlayerStateBase
     {
+        private const float WallCheckGracePeriod = 0.05f;
         private int wallDirection;
 
         public override void Enter(PlayerController player)
@@ -34,10 +35,15 @@ namespace Gameplay.Player.States
 
         public override void FixedUpdate(PlayerController player)
         {
-            if (!player.IsTouchingWall)
+            // Grace period to let physics settle before checking wall contact
+            if (stateTimer > WallCheckGracePeriod)
             {
-                ExitToFalling(player);
-                return;
+                // Check if still touching wall in the original direction
+                if (!player.Motor.CheckWall(wallDirection))
+                {
+                    ExitToFalling(player);
+                    return;
+                }
             }
 
             if (player.IsGrounded)
