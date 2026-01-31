@@ -20,7 +20,6 @@ namespace Gameplay.Player
 
         [Header("Break Attack")]
         [SerializeField] private float breakAttackRange = 1.5f;
-        [SerializeField] private LayerMask breakableLayer;
 
         private PlayerMotor motor;
         private PlayerStateMachine stateMachine;
@@ -177,10 +176,7 @@ namespace Gameplay.Player
             Vector2 origin = transform.position;
             Vector2 dir = new Vector2(direction, 0);
 
-            // Use wall layer if breakableLayer is not set
-            LayerMask layerToCheck = breakableLayer != 0 ? breakableLayer : data.wallLayer;
-
-            RaycastHit2D hit = Physics2D.Raycast(origin, dir, breakAttackRange, layerToCheck);
+            RaycastHit2D hit = Physics2D.Raycast(origin, dir, breakAttackRange, data.breakableLayer);
 
             if (hit.collider != null)
             {

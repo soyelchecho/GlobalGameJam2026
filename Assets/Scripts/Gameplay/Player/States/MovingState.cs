@@ -50,7 +50,7 @@ namespace Gameplay.Player.States
 
         private void CheckWallAndFlip(PlayerController player, Collision2D collision)
         {
-            if (((1 << collision.gameObject.layer) & player.Data.wallLayer) != 0)
+            if (((1 << collision.gameObject.layer) & player.Data.AllWallLayers) != 0)
             {
                 ContactPoint2D contact = collision.GetContact(0);
                 if (Mathf.Abs(contact.normal.x) > 0.5f)

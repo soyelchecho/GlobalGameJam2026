@@ -3,36 +3,46 @@ using UnityEngine.Events;
 
 namespace Gameplay.Interactables
 {
+    /// <summary>
+    /// A breakable object that can be destroyed by the player.
+    /// Place on the Breakable layer so player bounces off it like a wall.
+    /// </summary>
     public class BreakableObject : MonoBehaviour, IBreakable
     {
-        [Header("Sprites")]
+        [Header("Visuals")]
         [SerializeField] private Sprite intactSprite;
         [SerializeField] private Sprite brokenSprite;
-
-        [Header("Components")]
         [SerializeField] private SpriteRenderer spriteRenderer;
-        [SerializeField] private Collider2D objectCollider;
 
-        [Header("Mask Requirements")]
-        [Tooltip("If true, requires a mask to break. If false, can be broken anytime.")]
+        [Header("Collision")]
+        [SerializeField] private Collider2D solidCollider;
+
+        [Header("Break Requirements")]
+        [Tooltip("If true, requires a mask to break")]
         [SerializeField] private bool requiresMask = true;
 
-        [Tooltip("Specific mask ID required. Leave empty to allow any mask.")]
+        [Tooltip("Specific mask ID required (empty = any mask)")]
         [SerializeField] private string requiredMaskId = "";
 
         [Header("Events")]
         public UnityEvent OnBroken;
         public UnityEvent OnBreakAttemptFailed;
+        public UnityEvent OnRepaired;
 
         public bool IsBroken { get; private set; }
 
         private void Awake()
         {
+            CacheComponents();
+        }
+
+        private void CacheComponents()
+        {
             if (spriteRenderer == null)
                 spriteRenderer = GetComponent<SpriteRenderer>();
 
-            if (objectCollider == null)
-                objectCollider = GetComponent<Collider2D>();
+            if (solidCollider == null)
+                solidCollider = GetComponent<Collider2D>();
 
             if (intactSprite == null && spriteRenderer != null)
                 intactSprite = spriteRenderer.sprite;
@@ -44,14 +54,11 @@ namespace Gameplay.Interactables
 
             if (!requiresMask) return true;
 
-            // Requires mask but none provided
             if (string.IsNullOrEmpty(maskId)) return false;
 
-            // Specific mask required
+            // If specific mask required, check it matches
             if (!string.IsNullOrEmpty(requiredMaskId))
-            {
                 return maskId == requiredMaskId;
-            }
 
             // Any mask is fine
             return true;
@@ -63,23 +70,20 @@ namespace Gameplay.Interactables
 
             IsBroken = true;
 
-            // Change sprite
+            // Update visual
             if (spriteRenderer != null && brokenSprite != null)
-            {
                 spriteRenderer.sprite = brokenSprite;
-            }
 
-            // Disable collider
-            if (objectCollider != null)
-            {
-                objectCollider.enabled = false;
-            }
+            // Disable collision so player can pass through
+            if (solidCollider != null)
+                solidCollider.enabled = false;
 
             OnBroken?.Invoke();
-
-            Debug.Log($"[Breakable] {gameObject.name} was broken!");
         }
 
+        /// <summary>
+        /// Try to break this object with the given mask.
+        /// </summary>
         public void TryBreak(string maskId)
         {
             if (CanBreak(maskId))
@@ -89,39 +93,14 @@ namespace Gameplay.Interactables
             else
             {
                 OnBreakAttemptFailed?.Invoke();
-                Debug.Log($"[Breakable] Cannot break {gameObject.name} - mask required: {requiredMaskId}, provided: {maskId}");
             }
         }
 
-        /// <summary>
-        /// Restore the object to its intact state
-        /// </summary>
-        public void Repair()
-        {
-            if (!IsBroken) return;
-
-            IsBroken = false;
-
-            if (spriteRenderer != null && intactSprite != null)
-            {
-                spriteRenderer.sprite = intactSprite;
-            }
-
-            if (objectCollider != null)
-            {
-                objectCollider.enabled = true;
-            }
-
-            Debug.Log($"[Breakable] {gameObject.name} was repaired!");
-        }
-
+#if UNITY_EDITOR
         private void OnValidate()
         {
-            if (spriteRenderer == null)
-                spriteRenderer = GetComponent<SpriteRenderer>();
-
-            if (objectCollider == null)
-                objectCollider = GetComponent<Collider2D>();
+            CacheComponents();
         }
+#endif
     }
 }

@@ -29,9 +29,19 @@ namespace Gameplay.Player
         [Tooltip("One-way platforms (use Platform Effector 2D)")]
         public LayerMask oneWayPlatformLayer;
         public LayerMask wallLayer;
+        [Tooltip("Breakable objects layer - player bounces off these like walls")]
+        public LayerMask breakableLayer;
         public float groundCheckRadius = 0.2f;
         public float wallCheckDistance = 0.5f;
 
+        /// <summary>
+        /// Combined ground layers (solid + one-way platforms)
+        /// </summary>
         public LayerMask AllGroundLayers => groundLayer | oneWayPlatformLayer;
+
+        /// <summary>
+        /// Combined wall layers (walls + breakables) - player bounces off all of these
+        /// </summary>
+        public LayerMask AllWallLayers => wallLayer | breakableLayer;
     }
 }

@@ -150,7 +150,7 @@ namespace Gameplay.Player
         {
             if (wallCheck == null) return false;
             Vector2 wallCheckDir = new Vector2(direction, 0);
-            RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, wallCheckDir, data.wallCheckDistance, data.wallLayer);
+            RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, wallCheckDir, data.wallCheckDistance, data.AllWallLayers);
             return hit.collider != null;
         }
 

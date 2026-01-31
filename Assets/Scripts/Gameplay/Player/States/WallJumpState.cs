@@ -62,7 +62,7 @@ namespace Gameplay.Player.States
                 }
             }
 
-            if (((1 << collision.gameObject.layer) & player.Data.wallLayer) != 0)
+            if (((1 << collision.gameObject.layer) & player.Data.AllWallLayers) != 0)
             {
                 ContactPoint2D contact = collision.GetContact(0);
                 if (Mathf.Abs(contact.normal.x) > 0.5f)
