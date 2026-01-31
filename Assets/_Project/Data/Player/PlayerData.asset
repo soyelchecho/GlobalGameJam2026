@@ -15,7 +15,7 @@ MonoBehaviour:
   moveSpeed: 8
   jumpForce: 16.5
   doubleJumpForce: 16.5
-  maxJumps: 2
+  maxJumps: 1
   wallSlideSpeed: 3
   wallClingDuration: 0.5
   wallJumpForce: {x: 8, y: 16.5}
@@ -32,4 +32,4 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   groundCheckRadius: 0.2
-  wallCheckDistance: 0.5
+  wallCheckDistance: 0.57
