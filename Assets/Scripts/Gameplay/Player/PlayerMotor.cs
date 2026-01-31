@@ -126,8 +126,8 @@ namespace Gameplay.Player
                 float playerBottom = playerCollider.bounds.min.y;
                 float platformTop = hit.collider.bounds.max.y;
 
-                // Small tolerance (0.05) for floating point precision
-                if (playerBottom < platformTop - 0.05f)
+                // Tolerance for physics penetration when landing (0.2 units)
+                if (playerBottom < platformTop - 0.2f)
                 {
                     return false; // Still passing through, not standing on top
                 }

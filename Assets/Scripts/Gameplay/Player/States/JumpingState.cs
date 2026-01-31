@@ -50,6 +50,18 @@ namespace Gameplay.Player.States
 
         public override void OnCollisionEnter(PlayerController player, Collision2D collision)
         {
+            // Check for landing on ground or one-way platforms
+            if (((1 << collision.gameObject.layer) & player.Data.AllGroundLayers) != 0)
+            {
+                ContactPoint2D contact = collision.GetContact(0);
+                if (contact.normal.y > 0.5f && player.Motor.Velocity.y <= 0)
+                {
+                    player.ChangeState(PlayerState.Moving);
+                    return;
+                }
+            }
+
+            '''if (((1 << collision.gameObject.layer) & player.Data.wallLayer) != 0)'''
             if (((1 << collision.gameObject.layer) & player.Data.AllWallLayers) != 0)
             {
                 ContactPoint2D contact = collision.GetContact(0);

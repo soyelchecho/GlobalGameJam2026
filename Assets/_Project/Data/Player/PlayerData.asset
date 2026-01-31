@@ -32,4 +32,4 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   groundCheckRadius: 0.2
-  wallCheckDistance: 0.57
+  wallCheckDistance: 0.575

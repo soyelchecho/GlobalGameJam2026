@@ -51,7 +51,8 @@ namespace Gameplay.Player.States
 
         public override void OnCollisionEnter(PlayerController player, Collision2D collision)
         {
-            if (((1 << collision.gameObject.layer) & player.Data.groundLayer) != 0)
+            // Check both ground layer AND one-way platform layer
+            if (((1 << collision.gameObject.layer) & player.Data.AllGroundLayers) != 0)
             {
                 // Only land if hitting from ABOVE (normal pointing up)
                 ContactPoint2D contact = collision.GetContact(0);
