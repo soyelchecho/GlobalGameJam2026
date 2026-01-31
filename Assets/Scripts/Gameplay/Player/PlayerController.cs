@@ -162,10 +162,12 @@ namespace Gameplay.Player
             {
                 if (swipeDelta.y > swipeThreshold) // Up
                 {
+                    Debug.Log("Side swipe action - Hit Up");
                     maskManager.UnequipCurrentMask();
                 }
                 else if (swipeDelta.y < -swipeThreshold) // Down
                 {
+                Debug.Log("Side swipe action - Hit Down");
                     maskManager.EquipStartingMask();
                 }
             }
