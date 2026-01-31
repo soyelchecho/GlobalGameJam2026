@@ -4,6 +4,7 @@ using Gameplay.Masks;
 namespace Gameplay.Player
 {
     [RequireComponent(typeof(PlayerMotor))]
+    [RequireComponent(typeof(TouchInputHandler))]
     public class PlayerController : MonoBehaviour, IPlayerController
     {
         [Header("Data")]
@@ -13,19 +14,26 @@ namespace Gameplay.Player
         [Header("Initial Settings")]
         [SerializeField] private int initialDirection = 1;
 
+        [Header("Mobile Input")]
+        [SerializeField] private float swipeThreshold = 50f;
+
         private PlayerMotor motor;
         private PlayerStateMachine stateMachine;
         private MaskManager maskManager;
+        private TouchInputHandler touchInputHandler;
 
         private int moveDirection;
         private int jumpCount;
         private bool hasUsedWallCling;
+        private Vector2 dragStartPosition;
 
         public PlayerData Data => data;
         public PlayerMotor Motor => motor;
         public PlayerStateMachine StateMachine => stateMachine;
         public PlayerEvents Events => events;
         public MaskManager MaskManager => maskManager;
+        
+        public Vector2 WallContactNormal { get; set; }
 
         public int MoveDirection
         {
@@ -66,6 +74,7 @@ namespace Gameplay.Player
         {
             motor = GetComponent<PlayerMotor>();
             maskManager = GetComponent<MaskManager>();
+            touchInputHandler = GetComponent<TouchInputHandler>();
 
             if (data == null)
             {
@@ -89,13 +98,38 @@ namespace Gameplay.Player
         private void Start()
         {
             stateMachine.Initialize(PlayerState.Moving);
+
+            // Subscribe to input events
+            touchInputHandler.OnTap.AddListener(HandleTap);
+            touchInputHandler.OnDragStart.AddListener(HandleDragStart);
+            touchInputHandler.OnDragEnd.AddListener(HandleDragEnd);
+        }
+
+        private void OnDestroy()
+        {
+            // Unsubscribe to prevent memory leaks
+            touchInputHandler.OnTap.RemoveListener(HandleTap);
+            touchInputHandler.OnDragStart.RemoveListener(HandleDragStart);
+            touchInputHandler.OnDragEnd.RemoveListener(HandleDragEnd);
         }
 
         private void Update()
         {
             stateMachine.Update();
-            HandleInput();
             maskManager?.CurrentMask?.OnUpdate(this);
+
+            // Editor-only keyboard controls
+            #if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                OnJumpInput();
+            }
+
+            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                TryDropThroughPlatform();
+            }
+            #endif
         }
 
         private void FixedUpdate()
@@ -103,25 +137,50 @@ namespace Gameplay.Player
             stateMachine.FixedUpdate();
         }
 
-        private void HandleInput()
+        private void HandleTap(Vector2 position)
         {
-            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
-            {
-                OnJumpInput();
-            }
+            OnJumpInput();
+        }
 
-            #if UNITY_EDITOR
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                OnJumpInput();
-            }
+        private void HandleDragStart(Vector2 position)
+        {
+            dragStartPosition = position;
+        }
 
-            // Drop through one-way platforms with S or Down arrow
-            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        /// <summary>
+        /// Handles swipe gestures for mobile controls.
+        /// - Swipe Down: Equips the default mask.
+        /// - Swipe Up: Unequips the current mask.
+        /// - Swipe Left/Right: Triggers a placeholder "hit" action.
+        /// </summary>
+        private void HandleDragEnd(Vector2 position)
+        {
+            Vector2 swipeDelta = position - dragStartPosition;
+
+            // Prioritize vertical swipes over horizontal ones
+            if (Mathf.Abs(swipeDelta.y) > Mathf.Abs(swipeDelta.x))
             {
-                TryDropThroughPlatform();
+                if (swipeDelta.y > swipeThreshold) // Up
+                {
+                    maskManager.UnequipCurrentMask();
+                }
+                else if (swipeDelta.y < -swipeThreshold) // Down
+                {
+                    maskManager.EquipStartingMask();
+                }
             }
-            #endif
+            // Horizontal swipes
+            else
+            {
+                if (swipeDelta.x > swipeThreshold) // Right
+                {
+                    Debug.Log("Side swipe action - Hit Right");
+                }
+                else if (swipeDelta.x < -swipeThreshold) // Left
+                {
+                    Debug.Log("Side swipe action - Hit Left");
+                }
+            }
         }
 
         public void TryDropThroughPlatform()

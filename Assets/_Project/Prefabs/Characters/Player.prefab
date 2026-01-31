@@ -77,6 +77,7 @@ GameObject:
   - component: {fileID: 1550968727703172219}
   - component: {fileID: 6828651004535338856}
   - component: {fileID: 647770318830564772}
+  - component: {fileID: 704071845371928848}
   m_Layer: 11
   m_Name: Player
   m_TagString: Player
@@ -215,7 +216,7 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.5, y: 0}
     oldSize: {x: 1, y: 1}
     newSize: {x: 0.2, y: 0.2}
     adaptiveTilingThreshold: 0.5
@@ -240,6 +241,7 @@ MonoBehaviour:
   data: {fileID: 11400000, guid: b9790b488730dad448dc35932251bf0b, type: 2}
   events: {fileID: 11400000, guid: f8fc40cf2830b1042ab294f41569c163, type: 2}
   initialDirection: 1
+  swipeThreshold: 50
 --- !u!114 &6828651004535338856
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277,3 +279,29 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   startingMask: {fileID: 0}
+--- !u!114 &704071845371928848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5582643507508281291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d24ca5f5af153462886d8f1ad678f409, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnTap:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDragStart:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDrag:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDragEnd:
+    m_PersistentCalls:
+      m_Calls: []
+  tapThreshold: 0.2
+  dragThreshold: 10

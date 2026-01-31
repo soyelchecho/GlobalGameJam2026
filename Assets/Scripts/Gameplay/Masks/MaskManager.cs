@@ -57,6 +57,14 @@ namespace Gameplay.Masks
 
             Debug.Log($"Equipped mask: {mask.MaskId}");
         }
+        
+        public void EquipStartingMask()
+        {
+            if (startingMask != null)
+            {
+                EquipMask(startingMask);
+            }
+        }
 
         public void UnequipCurrentMask()
         {
