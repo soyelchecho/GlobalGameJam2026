@@ -42,7 +42,7 @@ namespace Gameplay.Player
             }
         }
 
-        private void OnSwipeUp()
+        private void OnSwipeDown()
         {
 #if UNITY_EDITOR
             Debug.Log("[PlayerMaskController] Swipe Up - Equip mask");
@@ -56,7 +56,7 @@ namespace Gameplay.Player
             }
         }
 
-        private void OnSwipeDown()
+        private void OnSwipeUp()
         {
 #if UNITY_EDITOR
             Debug.Log("[PlayerMaskController] Swipe Down - Unequip mask");
