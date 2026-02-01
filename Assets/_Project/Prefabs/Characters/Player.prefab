@@ -164,6 +164,7 @@ GameObject:
   - component: {fileID: 704071845371928848}
   - component: {fileID: 60492405792794201}
   - component: {fileID: 6596424205666673636}
+  - component: {fileID: 5074105610972743209}
   m_Layer: 11
   m_Name: Player
   m_TagString: Player
@@ -461,3 +462,15 @@ MonoBehaviour:
   wallJumpTrigger: WallJump
   punchTrigger: Punch
   isRunningBool: IsRunning
+--- !u!114 &5074105610972743209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5582643507508281291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d801fc00cd57d445d8a3f3a948dc66cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
