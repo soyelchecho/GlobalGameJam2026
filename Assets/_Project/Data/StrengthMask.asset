@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c129259b88250486f9fd92d842666910, type: 3}
+  m_Script: {fileID: 11500000, guid: f6e29856d37870a479e659efbccaa44c, type: 3}
   m_Name: StrengthMask
   m_EditorClassIdentifier: 
   maskId: strength

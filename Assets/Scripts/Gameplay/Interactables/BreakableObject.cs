@@ -69,16 +69,27 @@ namespace Gameplay.Interactables
             if (IsBroken) return;
 
             IsBroken = true;
-
-            // Update visual
-            if (spriteRenderer != null && brokenSprite != null)
-                spriteRenderer.sprite = brokenSprite;
+            Debug.Log($"[BreakableObject] {name} - Break() called");
 
             // Disable collision so player can pass through
             if (solidCollider != null)
                 solidCollider.enabled = false;
 
+            // Invoke event FIRST (for animations, VFX, etc.)
+            int listenerCount = OnBroken?.GetPersistentEventCount() ?? 0;
+            Debug.Log($"[BreakableObject] {name} - OnBroken has {listenerCount} listeners, invoking...");
             OnBroken?.Invoke();
+            Debug.Log($"[BreakableObject] {name} - OnBroken invoked");
+        }
+
+        /// <summary>
+        /// Apply the broken visual state. Call this after your break animation finishes.
+        /// Can also be called directly from OnBroken if no animation is needed.
+        /// </summary>
+        public void ApplyBrokenVisual()
+        {
+            if (spriteRenderer != null && brokenSprite != null)
+                spriteRenderer.sprite = brokenSprite;
         }
 
         /// <summary>
