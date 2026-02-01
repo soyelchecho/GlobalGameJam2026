@@ -1807,6 +1807,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 647770318830564772, guid: a46463905d1f16944b8c935fbb174dd9,
         type: 3}
+      propertyPath: maskAnimator
+      value: 
+      objectReference: {fileID: 549882649}
+    - target: {fileID: 647770318830564772, guid: a46463905d1f16944b8c935fbb174dd9,
+        type: 3}
       propertyPath: startingMask
       value: 
       objectReference: {fileID: 11400000, guid: fcd416e104435498d945b01a29fcb6c0,
@@ -2842,6 +2847,12 @@ MonoBehaviour:
 --- !u!4 &549882647 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1087601680882872963, guid: a46463905d1f16944b8c935fbb174dd9,
+    type: 3}
+  m_PrefabInstance: {fileID: 307334531}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &549882649 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 60492405792794201, guid: a46463905d1f16944b8c935fbb174dd9,
     type: 3}
   m_PrefabInstance: {fileID: 307334531}
   m_PrefabAsset: {fileID: 0}
@@ -4639,6 +4650,10 @@ MonoBehaviour:
   OnMaskAbilityUsed:
     m_PersistentCalls:
       m_Calls: []
+  maskSpriteOverlay: {fileID: 0}
+  maskAnimator: {fileID: 0}
+  equipTrigger: EquipMask
+  unequipTrigger: UnequipMask
   startingMask: {fileID: 0}
 --- !u!114 &1166166786
 MonoBehaviour:
@@ -4655,11 +4670,11 @@ MonoBehaviour:
   animator: {fileID: 1978641083}
   events: {fileID: 11400000, guid: f8fc40cf2830b1042ab294f41569c163, type: 2}
   jumpTrigger: Jump
-  landTrigger: Land
   fallTrigger: Fall
   wallClingTrigger: WallCling
   wallJumpTrigger: WallJump
   punchTrigger: Punch
+  isRunningBool: IsRunning
 --- !u!95 &1166166787
 Animator:
   serializedVersion: 5
@@ -8835,7 +8850,7 @@ GameObject:
   - component: {fileID: 2141385985}
   - component: {fileID: 2141385984}
   m_Layer: 10
-  m_Name: Pilar (1)
+  m_Name: Pilar1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

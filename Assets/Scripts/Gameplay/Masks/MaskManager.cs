@@ -20,6 +20,16 @@ namespace Gameplay.Masks
         public MaskUnequippedEvent OnMaskUnequipped = new MaskUnequippedEvent();
         public MaskAbilityUsedEvent OnMaskAbilityUsed = new MaskAbilityUsedEvent();
 
+        [Header("Visuals")]
+        [Tooltip("Child GameObject containing the mask sprite overlay")]
+        [SerializeField] private GameObject maskSpriteOverlay;
+
+        [Header("Animation")]
+        [Tooltip("Animator for mask equip/unequip animations")]
+        [SerializeField] private Animator maskAnimator;
+        [SerializeField] private string equipTrigger = "EquipMask";
+        [SerializeField] private string unequipTrigger = "UnequipMask";
+
         [Header("Debug")]
         [SerializeField] private MaskBase startingMask;
 
@@ -36,6 +46,10 @@ namespace Gameplay.Masks
 
         private void Start()
         {
+            // Hide mask overlay initially
+            if (maskSpriteOverlay != null)
+                maskSpriteOverlay.SetActive(false);
+
             if (startingMask != null)
             {
                 EquipMask(startingMask);
@@ -51,11 +65,31 @@ namespace Gameplay.Masks
                 UnequipCurrentMask();
             }
 
+            // Equip mask logic immediately
             currentMask = mask;
             currentMask.OnEquip(playerController);
             OnMaskEquipped?.Invoke(currentMask);
 
-            Debug.Log($"Equipped mask: {mask.MaskId}");
+            // Play animation, sprite will show when animation calls OnEquipAnimationComplete()
+            if (maskAnimator != null)
+            {
+                maskAnimator.SetTrigger(equipTrigger);
+            }
+            else
+            {
+                // No animator, show sprite immediately
+                if (maskSpriteOverlay != null)
+                    maskSpriteOverlay.SetActive(true);
+            }
+        }
+
+        /// <summary>
+        /// Called by Animation Event at end of equip animation to show mask sprite
+        /// </summary>
+        public void OnEquipAnimationComplete()
+        {
+            if (maskSpriteOverlay != null)
+                maskSpriteOverlay.SetActive(true);
         }
 
         public void EquipStartingMask()
@@ -70,12 +104,32 @@ namespace Gameplay.Masks
         {
             if (currentMask == null) return;
 
+            // Unequip mask logic immediately
             IMask previousMask = currentMask;
             currentMask.OnUnequip(playerController);
             currentMask = null;
             OnMaskUnequipped?.Invoke(previousMask);
 
-            Debug.Log($"Unequipped mask: {previousMask.MaskId}");
+            // Play animation, sprite will hide when animation calls OnUnequipAnimationComplete()
+            if (maskAnimator != null)
+            {
+                maskAnimator.SetTrigger(unequipTrigger);
+            }
+            else
+            {
+                // No animator, hide sprite immediately
+                if (maskSpriteOverlay != null)
+                    maskSpriteOverlay.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// Called by Animation Event at end of unequip animation to hide mask sprite
+        /// </summary>
+        public void OnUnequipAnimationComplete()
+        {
+            if (maskSpriteOverlay != null)
+                maskSpriteOverlay.SetActive(false);
         }
 
         public void UseAbility()
