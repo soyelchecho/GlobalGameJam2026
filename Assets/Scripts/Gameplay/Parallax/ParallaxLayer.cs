@@ -17,6 +17,11 @@ namespace Gameplay.Parallax
         [Range(0f, 1f)]
         [SerializeField] private float parallaxFactorX = 0f;
 
+        [Header("Vertical Limit")]
+        [Tooltip("Stop parallax movement after camera reaches this Y position")]
+        [SerializeField] private bool useMaxY = false;
+        [SerializeField] private float maxCameraY = 100f;
+
         [Header("Infinite Scrolling")]
         [SerializeField] private bool infiniteScrollY = false;
 
@@ -79,6 +84,13 @@ namespace Gameplay.Parallax
             // Calculate how much the camera has moved from its start
             Vector3 cameraDelta = cameraTransform.position - cameraStartPosition;
 
+            // Clamp camera delta Y if max Y is set
+            if (useMaxY)
+            {
+                float maxDeltaY = maxCameraY - cameraStartPosition.y;
+                cameraDelta.y = Mathf.Min(cameraDelta.y, maxDeltaY);
+            }
+
             // Apply parallax
             float newX = startPosition.x + (cameraDelta.x * parallaxFactorX);
             float newY = startPosition.y + (cameraDelta.y * parallaxFactorY);
@@ -126,5 +138,22 @@ namespace Gameplay.Parallax
                 Debug.Log($"[ParallaxLayer] Detected height: {tileHeight}");
             }
         }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            if (!useMaxY) return;
+
+            // Draw max Y limit line
+            Gizmos.color = Color.red;
+            float lineWidth = 30f;
+            Vector3 lineStart = new Vector3(transform.position.x - lineWidth / 2f, maxCameraY, 0);
+            Vector3 lineEnd = new Vector3(transform.position.x + lineWidth / 2f, maxCameraY, 0);
+            Gizmos.DrawLine(lineStart, lineEnd);
+
+            // Draw label position indicator
+            Gizmos.DrawWireSphere(new Vector3(transform.position.x, maxCameraY, 0), 0.5f);
+        }
+#endif
     }
 }

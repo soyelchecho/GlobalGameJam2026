@@ -14,6 +14,11 @@ namespace Gameplay.Parallax
         [Range(0f, 1f)]
         [SerializeField] private float parallaxFactorY = 0.5f;
 
+        [Header("Vertical Limit")]
+        [Tooltip("Stop parallax movement after camera reaches this Y position")]
+        [SerializeField] private bool useMaxY = false;
+        [SerializeField] private float maxCameraY = 100f;
+
         [Header("Tile Settings")]
         [Tooltip("The sprite to tile. If empty, uses this object's SpriteRenderer.")]
         [SerializeField] private Sprite tileSprite;
@@ -136,6 +141,14 @@ namespace Gameplay.Parallax
 
             // Calculate parallax offset
             float cameraDeltaY = cameraTransform.position.y - cameraStartPosition.y;
+
+            // Clamp camera delta if max Y is set
+            if (useMaxY)
+            {
+                float maxDelta = maxCameraY - cameraStartPosition.y;
+                cameraDeltaY = Mathf.Min(cameraDeltaY, maxDelta);
+            }
+
             float parallaxOffset = cameraDeltaY * parallaxFactorY;
 
             // Apply parallax to base position
@@ -254,6 +267,17 @@ namespace Gameplay.Parallax
                 transform.position,
                 new Vector3(10f, height, 0)
             );
+
+            // Draw max Y limit line
+            if (useMaxY)
+            {
+                Gizmos.color = Color.red;
+                float lineWidth = 30f;
+                Vector3 lineStart = new Vector3(transform.position.x - lineWidth / 2f, maxCameraY, 0);
+                Vector3 lineEnd = new Vector3(transform.position.x + lineWidth / 2f, maxCameraY, 0);
+                Gizmos.DrawLine(lineStart, lineEnd);
+                Gizmos.DrawWireSphere(new Vector3(transform.position.x, maxCameraY, 0), 0.5f);
+            }
         }
 #endif
     }

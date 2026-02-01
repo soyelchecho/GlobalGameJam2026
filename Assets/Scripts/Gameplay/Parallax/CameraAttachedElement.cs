@@ -34,11 +34,17 @@ namespace Gameplay.Parallax
         [Range(0f, 0.3f)]
         [SerializeField] private float parallaxAmount = 0.1f;
 
+        [Header("Vertical Limit")]
+        [Tooltip("Stop following camera after it reaches this Y position")]
+        [SerializeField] private bool useMaxY = false;
+        [SerializeField] private float maxCameraY = 100f;
+
         [Header("References")]
         [SerializeField] private Transform cameraTransform;
         private Camera cam;
         private Vector3 cameraStartPosition;
         private Vector3 startOffset;
+        private float maxReachedY;
 
         private void Start()
         {
@@ -82,6 +88,13 @@ namespace Gameplay.Parallax
             float cameraHalfWidth = cameraHalfHeight * cam.aspect;
 
             Vector3 cameraPos = cameraTransform.position;
+
+            // Clamp effective camera Y if max is set
+            if (useMaxY && cameraPos.y > maxCameraY)
+            {
+                cameraPos.y = maxCameraY;
+            }
+
             Vector3 targetPos = transform.position;
 
             switch (attachTo)
@@ -141,6 +154,17 @@ namespace Gameplay.Parallax
                         new Vector3(camPos.x + halfWidth, camPos.y - halfHeight + edgeOffset, 0)
                     );
                     break;
+            }
+
+            // Draw max Y limit line
+            if (useMaxY)
+            {
+                Gizmos.color = Color.red;
+                float lineWidth = 30f;
+                Vector3 lineStart = new Vector3(camPos.x - lineWidth / 2f, maxCameraY, 0);
+                Vector3 lineEnd = new Vector3(camPos.x + lineWidth / 2f, maxCameraY, 0);
+                Gizmos.DrawLine(lineStart, lineEnd);
+                Gizmos.DrawWireSphere(new Vector3(camPos.x, maxCameraY, 0), 0.5f);
             }
         }
     }
