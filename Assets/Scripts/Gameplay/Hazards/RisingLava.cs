@@ -87,21 +87,6 @@ namespace Gameplay.Hazards
 
         private void Update()
         {
-            if (hasKilledPlayer)
-            {
-                // Keep forcing freeze every frame until scene reloads
-                if (frozenPlayer != null)
-                {
-                    var rb = frozenPlayer.GetComponent<Rigidbody2D>();
-                    if (rb != null)
-                    {
-                        rb.velocity = Vector2.zero;
-                        rb.angularVelocity = 0f;
-                    }
-                }
-                return;
-            }
-
             if (!isRising) return;
 
             // Rise upward
