@@ -13,13 +13,13 @@ namespace Gameplay.Player
         [SerializeField] private Animator animator;
         [SerializeField] private PlayerEvents events;
 
-        // Animator parameter names - customize to match your Animator Controller
-        [Header("Animator Parameters")]
-        [SerializeField] private string stateParam = "State";
+        [Header("Animator Triggers")]
         [SerializeField] private string jumpTrigger = "Jump";
         [SerializeField] private string landTrigger = "Land";
+        [SerializeField] private string fallTrigger = "Fall";
         [SerializeField] private string wallClingTrigger = "WallCling";
         [SerializeField] private string wallJumpTrigger = "WallJump";
+        [SerializeField] private string punchTrigger = "Punch";
 
         private PlayerController playerController;
 
@@ -43,7 +43,7 @@ namespace Gameplay.Player
             events.OnLand.AddListener(OnLand);
             events.OnWallCling.AddListener(OnWallCling);
             events.OnWallJump.AddListener(OnWallJump);
-            events.OnDirectionChanged.AddListener(OnDirectionChanged);
+            events.OnPunch.AddListener(OnPunch);
         }
 
         private void OnDisable()
@@ -55,61 +55,85 @@ namespace Gameplay.Player
             events.OnLand.RemoveListener(OnLand);
             events.OnWallCling.RemoveListener(OnWallCling);
             events.OnWallJump.RemoveListener(OnWallJump);
-            events.OnDirectionChanged.RemoveListener(OnDirectionChanged);
+            events.OnPunch.RemoveListener(OnPunch);
         }
 
         private void OnStateChanged(PlayerState state)
         {
             if (animator == null) return;
 
-            // Set integer parameter for state-based blend tree or transitions
-            animator.SetInteger(stateParam, (int)state);
+            switch (state)
+            {
+                case PlayerState.Moving:
+#if UNITY_EDITOR
+                    Debug.Log($"[Anim] Trigger: {landTrigger}");
+#endif
+                    animator.SetTrigger(landTrigger);
+                    break;
 
-            // Alternative: use bools for each state
-            // animator.SetBool("IsMoving", state == PlayerState.Moving);
-            // animator.SetBool("IsFalling", state == PlayerState.Falling);
-            // etc.
+                case PlayerState.Falling:
+#if UNITY_EDITOR
+                    Debug.Log($"[Anim] Trigger: {fallTrigger}");
+#endif
+                    animator.SetTrigger(fallTrigger);
+                    break;
+
+                case PlayerState.WallCling:
+#if UNITY_EDITOR
+                    Debug.Log($"[Anim] Trigger: {wallClingTrigger}");
+#endif
+                    animator.SetTrigger(wallClingTrigger);
+                    break;
+
+                case PlayerState.WallJump:
+#if UNITY_EDITOR
+                    Debug.Log($"[Anim] Trigger: {wallJumpTrigger}");
+#endif
+                    animator.SetTrigger(wallJumpTrigger);
+                    break;
+            }
         }
 
         private void OnJump(int jumpCount)
         {
             if (animator == null) return;
-
             animator.SetTrigger(jumpTrigger);
-
-            // Optional: different animation for double jump
-            // animator.SetInteger("JumpCount", jumpCount);
         }
 
         private void OnLand(float fallSpeed)
         {
+#if UNITY_EDITOR
+            Debug.Log($"[Anim] Trigger: {landTrigger} (fallSpeed: {fallSpeed:F1})");
+#endif
             if (animator == null) return;
-
             animator.SetTrigger(landTrigger);
-
-            // Optional: harder landing animation for high falls
-            // animator.SetFloat("LandImpact", fallSpeed);
         }
 
         private void OnWallCling(Vector2 position)
         {
+#if UNITY_EDITOR
+            Debug.Log($"[Anim] Trigger: {wallClingTrigger}");
+#endif
             if (animator == null) return;
-
             animator.SetTrigger(wallClingTrigger);
         }
 
         private void OnWallJump(int newDirection)
         {
+#if UNITY_EDITOR
+            Debug.Log($"[Anim] Trigger: {wallJumpTrigger} (dir: {newDirection})");
+#endif
             if (animator == null) return;
-
             animator.SetTrigger(wallJumpTrigger);
         }
 
-        private void OnDirectionChanged(int direction)
+        private void OnPunch()
         {
-            // Direction flip is already handled by transform.localScale in PlayerController
-            // But you could trigger a turn animation here if needed
-            // animator.SetTrigger("Turn");
+#if UNITY_EDITOR
+            Debug.Log($"[Anim] Trigger: {punchTrigger}");
+#endif
+            if (animator == null) return;
+            animator.SetTrigger(punchTrigger);
         }
     }
 }

@@ -166,6 +166,9 @@ namespace Gameplay.Player
         /// </summary>
         public void TryBreakInDirection(int direction)
         {
+            // Trigger punch animation
+            events.RaisePunch();
+
             // Get current mask ID (if any)
             string currentMaskId = maskManager?.CurrentMask?.MaskId ?? "";
 

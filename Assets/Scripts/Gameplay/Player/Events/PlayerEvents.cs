@@ -51,6 +51,9 @@ namespace Gameplay.Player
         [Header("State Events")]
         public StateChangedEvent OnStateChanged = new StateChangedEvent();
 
+        [Header("Combat Events")]
+        public UnityEvent OnPunch = new UnityEvent();
+
         public void RaiseDirectionChanged(int direction)
         {
             OnDirectionChanged?.Invoke(direction);
@@ -86,6 +89,11 @@ namespace Gameplay.Player
             OnStateChanged?.Invoke(newState);
         }
 
+        public void RaisePunch()
+        {
+            OnPunch?.Invoke();
+        }
+
         public void ClearAllListeners()
         {
             OnDirectionChanged.RemoveAllListeners();
@@ -95,6 +103,7 @@ namespace Gameplay.Player
             OnWallCling.RemoveAllListeners();
             OnWallJump.RemoveAllListeners();
             OnStateChanged.RemoveAllListeners();
+            OnPunch.RemoveAllListeners();
         }
     }
 }
