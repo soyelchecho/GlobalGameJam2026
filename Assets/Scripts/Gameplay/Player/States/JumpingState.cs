@@ -9,6 +9,14 @@ namespace Gameplay.Player.States
             bool pushingIntoWall = player.IsTouchingWall && player.WallDirection == player.MoveDirection;
             bool blockedHorizontally = player.Motor.IsBlockedHorizontally(player.MoveDirection);
 
+            // If front blocked and can't wall cling, flip direction
+            if (player.IsFrontBlocked && !player.CanWallCling)
+            {
+                FlipDirection(player);
+                pushingIntoWall = false;
+                blockedHorizontally = false;
+            }
+
             // Don't push horizontally if blocked by any surface
             if ((!pushingIntoWall || player.CanWallCling) && !blockedHorizontally)
             {
@@ -25,6 +33,13 @@ namespace Gameplay.Player.States
             {
                 player.ChangeState(PlayerState.WallCling);
             }
+        }
+
+        private void FlipDirection(PlayerController player)
+        {
+            player.MoveDirection = -player.MoveDirection;
+            player.Events.RaiseDirectionChanged(player.MoveDirection);
+            player.Events.RaiseWallHit(new Vector2(-player.MoveDirection, 0));
         }
 
         public override void OnJumpPressed(PlayerController player)
@@ -61,8 +76,7 @@ namespace Gameplay.Player.States
                 }
             }
 
-            // if (((1 << collision.gameObject.layer) & player.Data.wallLayer) != 0)
-            if (((1 << collision.gameObject.layer) & player.Data.wallLayer) != 0)
+            if (((1 << collision.gameObject.layer) & player.Data.AllWallLayers) != 0)
             {
                 ContactPoint2D contact = collision.GetContact(0);
                 if (Mathf.Abs(contact.normal.x) > 0.5f)

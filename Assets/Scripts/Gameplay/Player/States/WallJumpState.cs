@@ -14,6 +14,7 @@ namespace Gameplay.Player.States
 
         public override void FixedUpdate(PlayerController player)
         {
+            // During control lock, don't process movement
             if (stateTimer < WallJumpControlLockTime)
             {
                 return;
@@ -21,6 +22,14 @@ namespace Gameplay.Player.States
 
             bool pushingIntoWall = player.IsTouchingWall && player.WallDirection == player.MoveDirection;
             bool blockedHorizontally = player.Motor.IsBlockedHorizontally(player.MoveDirection);
+
+            // If front blocked and can't wall cling, flip direction
+            if (player.IsFrontBlocked && !player.CanWallCling)
+            {
+                FlipDirection(player);
+                pushingIntoWall = false;
+                blockedHorizontally = false;
+            }
 
             // Don't push horizontally if blocked by any surface
             if ((!pushingIntoWall || player.CanWallCling) && !blockedHorizontally)
@@ -38,6 +47,13 @@ namespace Gameplay.Player.States
             {
                 player.ChangeState(PlayerState.WallCling);
             }
+        }
+
+        private void FlipDirection(PlayerController player)
+        {
+            player.MoveDirection = -player.MoveDirection;
+            player.Events.RaiseDirectionChanged(player.MoveDirection);
+            player.Events.RaiseWallHit(new Vector2(-player.MoveDirection, 0));
         }
 
         public override void OnJumpPressed(PlayerController player)

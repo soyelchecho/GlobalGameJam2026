@@ -9,6 +9,14 @@ namespace Gameplay.Player.States
             bool pushingIntoWall = player.IsTouchingWall && player.WallDirection == player.MoveDirection;
             bool blockedHorizontally = player.Motor.IsBlockedHorizontally(player.MoveDirection);
 
+            // If front blocked and can't wall cling, flip direction
+            if (player.IsFrontBlocked && !player.CanWallCling)
+            {
+                FlipDirection(player);
+                pushingIntoWall = false; // Recalculate since direction changed
+                blockedHorizontally = false;
+            }
+
             // Don't push horizontally if:
             // 1. Pushing into wall and can't cling (slide down)
             // 2. Blocked by any surface (platform side, etc.)
@@ -28,6 +36,13 @@ namespace Gameplay.Player.States
             {
                 player.ChangeState(PlayerState.WallCling);
             }
+        }
+
+        private void FlipDirection(PlayerController player)
+        {
+            player.MoveDirection = -player.MoveDirection;
+            player.Events.RaiseDirectionChanged(player.MoveDirection);
+            player.Events.RaiseWallHit(new Vector2(-player.MoveDirection, 0));
         }
 
         public override void OnJumpPressed(PlayerController player)

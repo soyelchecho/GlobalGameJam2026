@@ -31,7 +31,20 @@ namespace Gameplay.Player
         public LayerMask wallLayer;
         [Tooltip("Breakable objects layer - player bounces off these like walls")]
         public LayerMask breakableLayer;
-        public float groundCheckRadius = 0.2f;
+
+        [Header("Ground Check")]
+        [Tooltip("Size of the ground check box (width and downward distance)")]
+        public float groundCheckSize = 0.3f;
+
+        [Header("Front Check (Chest Height)")]
+        [Tooltip("Enable auto-flip when blocked at chest height")]
+        public bool enableFrontCheck = true;
+        [Tooltip("Distance to check for obstacles in front")]
+        public float frontCheckDistance = 0.4f;
+        [Tooltip("Height of the front check box")]
+        public float frontCheckHeight = 0.5f;
+
+        [Header("Wall Check")]
         public float wallCheckDistance = 0.5f;
 
         /// <summary>

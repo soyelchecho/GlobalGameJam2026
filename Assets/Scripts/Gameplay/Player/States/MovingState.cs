@@ -26,12 +26,25 @@ namespace Gameplay.Player.States
 
         public override void FixedUpdate(PlayerController player)
         {
+            // Check if blocked at chest height - flip direction
+            if (player.IsFrontBlocked)
+            {
+                FlipDirection(player);
+            }
+
             player.Motor.Move(player.MoveDirection);
 
             if (!player.IsGrounded)
             {
                 player.ChangeState(PlayerState.Falling);
             }
+        }
+
+        private void FlipDirection(PlayerController player)
+        {
+            player.MoveDirection = -player.MoveDirection;
+            player.Events.RaiseDirectionChanged(player.MoveDirection);
+            player.Events.RaiseWallHit(new Vector2(-player.MoveDirection, 0));
         }
 
         public override void OnJumpPressed(PlayerController player)

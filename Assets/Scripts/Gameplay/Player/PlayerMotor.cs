@@ -10,6 +10,8 @@ namespace Gameplay.Player
         [Header("References")]
         [SerializeField] private Transform groundCheck;
         [SerializeField] private Transform wallCheck;
+        [Tooltip("Chest-height check point for detecting frontal obstacles")]
+        [SerializeField] private Transform frontCheck;
 
         [Header("Drop Through")]
         [SerializeField] private float dropThroughDuration = 0.25f;
@@ -110,8 +112,20 @@ namespace Gameplay.Player
             // This prevents false positives when jumping through one-way platforms
             if (rb.velocity.y > 0.5f) return false;
 
-            // Use raycast downward
-            RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, data.groundCheckRadius, data.AllGroundLayers);
+            // Use BoxCast - groundCheckSize controls both width and distance
+            float boxWidth = data.groundCheckSize * 2f; // Size is "radius", so diameter = size * 2
+            float boxHeight = 0.05f; // Thin box
+            Vector2 boxSize = new Vector2(boxWidth, boxHeight);
+            Vector2 boxOrigin = groundCheck.position;
+
+            RaycastHit2D hit = Physics2D.BoxCast(
+                boxOrigin,
+                boxSize,
+                0f, // No rotation
+                Vector2.down,
+                data.groundCheckSize, // Distance also uses groundCheckSize
+                data.AllGroundLayers
+            );
 
             if (hit.collider == null) return false;
 
@@ -126,8 +140,10 @@ namespace Gameplay.Player
                 float playerBottom = playerCollider.bounds.min.y;
                 float platformTop = hit.collider.bounds.max.y;
 
-                // Tolerance for physics penetration when landing (0.2 units)
-                if (playerBottom < platformTop - 0.2f)
+                // Tolerance for physics penetration when landing
+                // Use smaller tolerance for thin platforms
+                float tolerance = Mathf.Min(0.2f, hit.collider.bounds.size.y * 0.5f);
+                if (playerBottom < platformTop - tolerance)
                 {
                     return false; // Still passing through, not standing on top
                 }
@@ -139,7 +155,20 @@ namespace Gameplay.Player
         public bool IsOnOneWayPlatform()
         {
             if (groundCheck == null) return false;
-            RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, data.groundCheckRadius, data.oneWayPlatformLayer);
+
+            // Use BoxCast to match CheckGrounded behavior
+            float boxWidth = data.groundCheckSize * 2f;
+            float boxHeight = 0.05f;
+            Vector2 boxSize = new Vector2(boxWidth, boxHeight);
+
+            RaycastHit2D hit = Physics2D.BoxCast(
+                groundCheck.position,
+                boxSize,
+                0f,
+                Vector2.down,
+                data.groundCheckSize,
+                data.oneWayPlatformLayer
+            );
 
             if (hit.collider == null) return false;
 
@@ -159,6 +188,52 @@ namespace Gameplay.Player
             if (CheckWall(1)) return 1;
             if (CheckWall(-1)) return -1;
             return 0;
+        }
+
+        /// <summary>
+        /// Checks if there's an obstacle at chest height in the given direction.
+        /// Useful for detecting when player is stuck or needs to react to frontal obstacles.
+        /// </summary>
+        public bool CheckFront(int direction)
+        {
+            if (frontCheck == null) return false;
+
+            Vector2 boxSize = new Vector2(0.05f, data.frontCheckHeight);
+            Vector2 castDir = new Vector2(direction, 0);
+
+            RaycastHit2D hit = Physics2D.BoxCast(
+                frontCheck.position,
+                boxSize,
+                0f,
+                castDir,
+                data.frontCheckDistance,
+                data.AllWallLayers | data.AllGroundLayers
+            );
+
+            return hit.collider != null;
+        }
+
+        /// <summary>
+        /// Checks front in the current movement direction (based on rigidbody velocity or sprite facing).
+        /// Returns the collider hit, or null if nothing.
+        /// </summary>
+        public Collider2D GetFrontObstacle(int direction)
+        {
+            if (frontCheck == null) return null;
+
+            Vector2 boxSize = new Vector2(0.05f, data.frontCheckHeight);
+            Vector2 castDir = new Vector2(direction, 0);
+
+            RaycastHit2D hit = Physics2D.BoxCast(
+                frontCheck.position,
+                boxSize,
+                0f,
+                castDir,
+                data.frontCheckDistance,
+                data.AllWallLayers | data.AllGroundLayers
+            );
+
+            return hit.collider;
         }
 
         /// <summary>
@@ -255,12 +330,53 @@ namespace Gameplay.Player
         {
             if (data == null) return;
 
-            // Ground check (raycast downward)
+            // Ground check (BoxCast visualization)
             if (groundCheck != null)
             {
+                float boxWidth = data.groundCheckSize * 2f;
+                float boxHeight = 0.05f;
+
                 Gizmos.color = Color.green;
-                Gizmos.DrawLine(groundCheck.position, groundCheck.position + Vector3.down * data.groundCheckRadius);
-                Gizmos.DrawWireSphere(groundCheck.position + Vector3.down * data.groundCheckRadius, 0.05f);
+
+                // Draw box at start position
+                Vector3 startPos = groundCheck.position;
+                Gizmos.DrawWireCube(startPos, new Vector3(boxWidth, boxHeight, 0));
+
+                // Draw box at end position (after cast distance)
+                Vector3 endPos = startPos + Vector3.down * data.groundCheckSize;
+                Gizmos.DrawWireCube(endPos, new Vector3(boxWidth, boxHeight, 0));
+
+                // Draw lines connecting corners
+                float halfWidth = boxWidth / 2f;
+                Gizmos.DrawLine(startPos + new Vector3(-halfWidth, 0, 0), endPos + new Vector3(-halfWidth, 0, 0));
+                Gizmos.DrawLine(startPos + new Vector3(halfWidth, 0, 0), endPos + new Vector3(halfWidth, 0, 0));
+            }
+
+            // Front check (chest height)
+            if (frontCheck != null)
+            {
+                float boxWidth = 0.05f;
+                float boxHeight = data.frontCheckHeight;
+
+                Gizmos.color = Color.yellow;
+
+                Vector3 startPos = frontCheck.position;
+                Gizmos.DrawWireCube(startPos, new Vector3(boxWidth, boxHeight, 0));
+
+                // Draw cast to the right
+                Vector3 endPosRight = startPos + Vector3.right * data.frontCheckDistance;
+                Gizmos.DrawWireCube(endPosRight, new Vector3(boxWidth, boxHeight, 0));
+
+                // Draw cast to the left
+                Vector3 endPosLeft = startPos + Vector3.left * data.frontCheckDistance;
+                Gizmos.DrawWireCube(endPosLeft, new Vector3(boxWidth, boxHeight, 0));
+
+                // Lines connecting
+                float halfHeight = boxHeight / 2f;
+                Gizmos.DrawLine(startPos + new Vector3(0, halfHeight, 0), endPosRight + new Vector3(0, halfHeight, 0));
+                Gizmos.DrawLine(startPos + new Vector3(0, -halfHeight, 0), endPosRight + new Vector3(0, -halfHeight, 0));
+                Gizmos.DrawLine(startPos + new Vector3(0, halfHeight, 0), endPosLeft + new Vector3(0, halfHeight, 0));
+                Gizmos.DrawLine(startPos + new Vector3(0, -halfHeight, 0), endPosLeft + new Vector3(0, -halfHeight, 0));
             }
 
             // Wall check
