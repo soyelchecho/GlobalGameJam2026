@@ -86,7 +86,7 @@ namespace Gameplay.Player
 
         public void RaiseStateChanged(PlayerState newState)
         {
-            Debug.Log("New state " + new)
+            Debug.Log("New state " + newState);
             OnStateChanged?.Invoke(newState);
         }
 
