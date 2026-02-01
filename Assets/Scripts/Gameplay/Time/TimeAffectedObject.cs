@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Gameplay.Temporal
 {
@@ -15,8 +16,20 @@ namespace Gameplay.Temporal
         [SerializeField] private bool applyPastTint = true;
         [SerializeField] private Color pastTint = new Color(0.7f, 0.85f, 1f, 1f);
 
+        [Header("Animation Events")]
+        [Tooltip("Called when entering Past (mask equipped). Use for rebuild animations.")]
+        public UnityEvent OnEnterPast;
+
+        [Tooltip("Called when entering Present (mask removed). Use for destroy animations.")]
+        public UnityEvent OnEnterPresent;
+
+        [Header("Timing")]
+        [Tooltip("If true, objects switch immediately. If false, call ApplyPastState()/ApplyPresentState() from animation events.")]
+        [SerializeField] private bool immediateSwitch = true;
+
         private Color[] originalColors;
         private SpriteRenderer[] pastSpriteRenderers;
+        private TimeState pendingState;
 
         private void Awake()
         {
@@ -48,7 +61,47 @@ namespace Gameplay.Temporal
 
         private void OnTimeStateChanged(TimeState newState)
         {
-            UpdateVisualState(newState);
+            pendingState = newState;
+
+            // Invoke events for animations
+            if (newState == TimeState.Past)
+            {
+                OnEnterPast?.Invoke();
+            }
+            else
+            {
+                OnEnterPresent?.Invoke();
+            }
+
+            // If immediate switch, apply now. Otherwise wait for manual call.
+            if (immediateSwitch)
+            {
+                UpdateVisualState(newState);
+            }
+        }
+
+        /// <summary>
+        /// Call this from animation event to apply the Past state (show past object, hide present).
+        /// </summary>
+        public void ApplyPastState()
+        {
+            UpdateVisualState(TimeState.Past);
+        }
+
+        /// <summary>
+        /// Call this from animation event to apply the Present state (show present object, hide past).
+        /// </summary>
+        public void ApplyPresentState()
+        {
+            UpdateVisualState(TimeState.Present);
+        }
+
+        /// <summary>
+        /// Apply the pending state (whatever the last time change requested).
+        /// </summary>
+        public void ApplyPendingState()
+        {
+            UpdateVisualState(pendingState);
         }
 
         private void UpdateVisualState(TimeState state)

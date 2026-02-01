@@ -34,7 +34,7 @@ MonoBehaviour:
   breakableLayer:
     serializedVersion: 2
     m_Bits: 4096
-  groundCheckSize: 0.3
+  groundCheckSize: 0.5
   enableFrontCheck: 0
   frontCheckDistance: 0.6
   frontCheckHeight: 0.5

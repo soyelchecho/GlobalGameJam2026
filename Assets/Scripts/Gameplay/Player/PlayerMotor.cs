@@ -108,48 +108,52 @@ namespace Gameplay.Player
         {
             if (groundCheck == null) return false;
 
-            // If moving upward, we're not grounded
-            // This prevents false positives when jumping through one-way platforms
-            if (rb.velocity.y > 0.5f) return false;
+            float checkWidth = data.groundCheckSize * 2f;
+            float checkDistance = data.groundCheckSize;
+            Vector2 origin = groundCheck.position;
 
-            // Use BoxCast - groundCheckSize controls both width and distance
-            float boxWidth = data.groundCheckSize * 2f; // Size is "radius", so diameter = size * 2
-            float boxHeight = 0.05f; // Thin box
-            Vector2 boxSize = new Vector2(boxWidth, boxHeight);
-            Vector2 boxOrigin = groundCheck.position;
+            // Use multiple raycasts to detect diagonal surfaces and edges
+            // Center, left, and right raycasts
+            RaycastHit2D hitCenter = Physics2D.Raycast(origin, Vector2.down, checkDistance, data.AllGroundLayers);
+            RaycastHit2D hitLeft = Physics2D.Raycast(origin + Vector2.left * (checkWidth * 0.5f), Vector2.down, checkDistance, data.AllGroundLayers);
+            RaycastHit2D hitRight = Physics2D.Raycast(origin + Vector2.right * (checkWidth * 0.5f), Vector2.down, checkDistance, data.AllGroundLayers);
 
-            RaycastHit2D hit = Physics2D.BoxCast(
-                boxOrigin,
-                boxSize,
-                0f, // No rotation
-                Vector2.down,
-                data.groundCheckSize, // Distance also uses groundCheckSize
-                data.AllGroundLayers
-            );
+            // Also cast diagonally to catch slopes
+            RaycastHit2D hitDiagLeft = Physics2D.Raycast(origin, new Vector2(-0.3f, -1f).normalized, checkDistance * 1.2f, data.AllGroundLayers);
+            RaycastHit2D hitDiagRight = Physics2D.Raycast(origin, new Vector2(0.3f, -1f).normalized, checkDistance * 1.2f, data.AllGroundLayers);
 
-            if (hit.collider == null) return false;
+            // Check if any ray hit something
+            RaycastHit2D[] hits = { hitCenter, hitLeft, hitRight, hitDiagLeft, hitDiagRight };
 
-            // Only grounded if the surface normal points UP (we're on top, not inside/below)
-            // normal.y > 0.7 means surface is roughly horizontal (floor)
-            if (hit.normal.y <= 0.7f) return false;
-
-            // For one-way platforms: make sure player is FULLY above, not passing through
-            if (((1 << hit.collider.gameObject.layer) & data.oneWayPlatformLayer) != 0)
+            foreach (var hit in hits)
             {
-                // Player's bottom must be at or above the platform's top surface
-                float playerBottom = playerCollider.bounds.min.y;
-                float platformTop = hit.collider.bounds.max.y;
+                if (hit.collider == null) continue;
 
-                // Tolerance for physics penetration when landing
-                // Use smaller tolerance for thin platforms
-                float tolerance = Mathf.Min(0.2f, hit.collider.bounds.size.y * 0.5f);
-                if (playerBottom < platformTop - tolerance)
+                // For diagonal surfaces, accept normals with y > 0.4 (more permissive)
+                // This allows slopes up to ~66 degrees
+                if (hit.normal.y <= 0.4f) continue;
+
+                // For one-way platforms: special checks
+                if (((1 << hit.collider.gameObject.layer) & data.oneWayPlatformLayer) != 0)
                 {
-                    return false; // Still passing through, not standing on top
+                    // If moving upward fast, ignore one-way platforms (jumping through)
+                    if (rb.velocity.y > 0.5f) continue;
+
+                    // Make sure player is FULLY above, not passing through
+                    float playerBottom = playerCollider.bounds.min.y;
+                    float platformTop = hit.collider.bounds.max.y;
+
+                    float tolerance = Mathf.Min(0.2f, hit.collider.bounds.size.y * 0.5f);
+                    if (playerBottom < platformTop - tolerance)
+                    {
+                        continue; // Still passing through, try next hit
+                    }
                 }
+
+                return true; // Found valid ground
             }
 
-            return true;
+            return false;
         }
 
         public bool IsOnOneWayPlatform()
@@ -330,26 +334,35 @@ namespace Gameplay.Player
         {
             if (data == null) return;
 
-            // Ground check (BoxCast visualization)
+            // Ground check (multi-raycast visualization)
             if (groundCheck != null)
             {
-                float boxWidth = data.groundCheckSize * 2f;
-                float boxHeight = 0.05f;
+                float checkWidth = data.groundCheckSize * 2f;
+                float checkDistance = data.groundCheckSize;
+                Vector3 origin = groundCheck.position;
 
                 Gizmos.color = Color.green;
 
-                // Draw box at start position
-                Vector3 startPos = groundCheck.position;
-                Gizmos.DrawWireCube(startPos, new Vector3(boxWidth, boxHeight, 0));
+                // Center raycast
+                Gizmos.DrawLine(origin, origin + Vector3.down * checkDistance);
+                Gizmos.DrawWireSphere(origin + Vector3.down * checkDistance, 0.03f);
 
-                // Draw box at end position (after cast distance)
-                Vector3 endPos = startPos + Vector3.down * data.groundCheckSize;
-                Gizmos.DrawWireCube(endPos, new Vector3(boxWidth, boxHeight, 0));
+                // Left raycast
+                Vector3 leftOrigin = origin + Vector3.left * (checkWidth * 0.5f);
+                Gizmos.DrawLine(leftOrigin, leftOrigin + Vector3.down * checkDistance);
+                Gizmos.DrawWireSphere(leftOrigin + Vector3.down * checkDistance, 0.03f);
 
-                // Draw lines connecting corners
-                float halfWidth = boxWidth / 2f;
-                Gizmos.DrawLine(startPos + new Vector3(-halfWidth, 0, 0), endPos + new Vector3(-halfWidth, 0, 0));
-                Gizmos.DrawLine(startPos + new Vector3(halfWidth, 0, 0), endPos + new Vector3(halfWidth, 0, 0));
+                // Right raycast
+                Vector3 rightOrigin = origin + Vector3.right * (checkWidth * 0.5f);
+                Gizmos.DrawLine(rightOrigin, rightOrigin + Vector3.down * checkDistance);
+                Gizmos.DrawWireSphere(rightOrigin + Vector3.down * checkDistance, 0.03f);
+
+                // Diagonal raycasts (for slopes)
+                Gizmos.color = Color.cyan;
+                Vector3 diagLeft = new Vector3(-0.3f, -1f, 0).normalized * checkDistance * 1.2f;
+                Vector3 diagRight = new Vector3(0.3f, -1f, 0).normalized * checkDistance * 1.2f;
+                Gizmos.DrawLine(origin, origin + diagLeft);
+                Gizmos.DrawLine(origin, origin + diagRight);
             }
 
             // Front check (chest height)
