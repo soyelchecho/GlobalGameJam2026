@@ -4928,7 +4928,7 @@ PrefabInstance:
     - target: {fileID: 55195766067803782, guid: 9a3ce814255ee2e459bca56d6e816490,
         type: 3}
       propertyPath: orthographic size
-      value: 17.777779
+      value: 17.763975
       objectReference: {fileID: 0}
     - target: {fileID: 6908492226549947547, guid: 9a3ce814255ee2e459bca56d6e816490,
         type: 3}
@@ -6677,7 +6677,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1502835100}
   - component: {fileID: 1502835101}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: lvl_012 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7881,7 +7881,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1902971890}
   - component: {fileID: 1902971889}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: SolidPlatformLarge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
