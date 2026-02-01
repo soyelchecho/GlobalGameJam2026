@@ -15,11 +15,13 @@ namespace Gameplay.Player
 
         [Header("Animator Triggers")]
         [SerializeField] private string jumpTrigger = "Jump";
-        [SerializeField] private string landTrigger = "Land";
         [SerializeField] private string fallTrigger = "Fall";
         [SerializeField] private string wallClingTrigger = "WallCling";
         [SerializeField] private string wallJumpTrigger = "WallJump";
         [SerializeField] private string punchTrigger = "Punch";
+
+        [Header("Animator Booleans")]
+        [SerializeField] private string isRunningBool = "IsRunning";
 
         private PlayerController playerController;
 
@@ -54,10 +56,14 @@ namespace Gameplay.Player
         {
             if (animator == null) return;
 
+            // Set IsRunning based on state
+            animator.SetBool(isRunningBool, state == PlayerState.Moving);
+
+            // Fire triggers for non-running states
             switch (state)
             {
                 case PlayerState.Moving:
-                    animator.SetTrigger(landTrigger);
+                    // Running handled by bool above
                     break;
 
                 case PlayerState.Jumping:
