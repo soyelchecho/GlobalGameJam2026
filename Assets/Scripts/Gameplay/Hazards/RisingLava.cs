@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -24,6 +25,9 @@ namespace Gameplay.Hazards
 
         [Tooltip("When the lava starts rising")]
         [SerializeField] private LavaStartMode startMode = LavaStartMode.OnFirstJump;
+
+        [Tooltip("Delay in seconds before lava starts rising")]
+        [SerializeField] private float startDelay = 2f;
 
         [Tooltip("PlayerEvents asset (required for OnFirstJump mode)")]
         [SerializeField] private PlayerEvents playerEvents;
@@ -155,10 +159,16 @@ namespace Gameplay.Hazards
         }
 
         /// <summary>
-        /// Start the lava rising
+        /// Start the lava rising (after delay)
         /// </summary>
         public void StartRising()
         {
+            StartCoroutine(StartRisingAfterDelay());
+        }
+
+        private IEnumerator StartRisingAfterDelay()
+        {
+            yield return new WaitForSeconds(startDelay);
             isRising = true;
         }
 

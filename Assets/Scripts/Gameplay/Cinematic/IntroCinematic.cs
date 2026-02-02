@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 using System.Collections;
 
 namespace Gameplay.Cinematic
@@ -27,12 +26,6 @@ namespace Gameplay.Cinematic
         [Header("Start Panel")]
         [Tooltip("Panel to show after intro animation")]
         [SerializeField] private GameObject startPanel;
-
-        [Tooltip("Button/Image to click to start the game")]
-        [SerializeField] private Button startButton;
-
-        [Tooltip("If no Button component, use this Image for click detection")]
-        [SerializeField] private Image clickableImage;
 
         [Header("Game Start")]
         [Tooltip("Player GameObject to activate when game starts")]
@@ -83,22 +76,30 @@ namespace Gameplay.Cinematic
             {
                 startPanel.SetActive(false);
             }
+        }
 
-            // Setup button click
-            if (startButton != null)
+        private void Update()
+        {
+            if (!isWaitingForClick) return;
+
+            // Detect any touch or mouse click
+            bool inputDetected = false;
+
+            // Touch input
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
-                startButton.onClick.AddListener(OnStartButtonClicked);
+                inputDetected = true;
             }
 
-            // Setup image click if no button
-            if (startButton == null && clickableImage != null)
+            // Mouse input (for editor testing)
+            if (Input.GetMouseButtonDown(0))
             {
-                // Add EventTrigger for click
-                var trigger = clickableImage.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
-                var entry = new UnityEngine.EventSystems.EventTrigger.Entry();
-                entry.eventID = UnityEngine.EventSystems.EventTriggerType.PointerClick;
-                entry.callback.AddListener((data) => OnStartButtonClicked());
-                trigger.triggers.Add(entry);
+                inputDetected = true;
+            }
+
+            if (inputDetected)
+            {
+                OnStartButtonClicked();
             }
         }
 
@@ -270,13 +271,6 @@ namespace Gameplay.Cinematic
             StartGame();
         }
 
-        private void OnDestroy()
-        {
-            if (startButton != null)
-            {
-                startButton.onClick.RemoveListener(OnStartButtonClicked);
-            }
-        }
 
 #if UNITY_EDITOR
         [Header("Debug")]
