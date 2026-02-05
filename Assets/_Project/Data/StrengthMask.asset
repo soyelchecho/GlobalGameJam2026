@@ -15,5 +15,7 @@ MonoBehaviour:
   maskId: strength
   maskSprite: {fileID: 0}
   description: 
+  equipAnimationTrigger: EquipStrengthMask
+  unequipAnimationTrigger: UnequipStrengthMask
   jumpMultiplier: 1
   speedMultiplier: 1

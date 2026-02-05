@@ -27,8 +27,6 @@ namespace Gameplay.Masks
         [Header("Animation")]
         [Tooltip("Animator for mask equip/unequip animations")]
         [SerializeField] private Animator maskAnimator;
-        [SerializeField] private string equipTrigger = "EquipMask";
-        [SerializeField] private string unequipTrigger = "UnequipMask";
 
         [Header("Debug")]
         [SerializeField] private MaskBase startingMask;
@@ -71,9 +69,9 @@ namespace Gameplay.Masks
             OnMaskEquipped?.Invoke(currentMask);
 
             // Play animation, sprite will show when animation calls OnEquipAnimationComplete()
-            if (maskAnimator != null)
+            if (maskAnimator != null && !string.IsNullOrEmpty(currentMask.EquipAnimationTrigger))
             {
-                maskAnimator.SetTrigger(equipTrigger);
+                maskAnimator.SetTrigger(currentMask.EquipAnimationTrigger);
             }
             else
             {
@@ -88,6 +86,7 @@ namespace Gameplay.Masks
         /// </summary>
         public void OnEquipAnimationComplete()
         {
+            Debug.Log("mask animation complete");
             if (maskSpriteOverlay != null)
                 maskSpriteOverlay.SetActive(true);
         }
@@ -111,9 +110,9 @@ namespace Gameplay.Masks
             OnMaskUnequipped?.Invoke(previousMask);
 
             // Play animation, sprite will hide when animation calls OnUnequipAnimationComplete()
-            if (maskAnimator != null)
+            if (maskAnimator != null && !string.IsNullOrEmpty(previousMask.UnequipAnimationTrigger))
             {
-                maskAnimator.SetTrigger(unequipTrigger);
+                maskAnimator.SetTrigger(previousMask.UnequipAnimationTrigger);
             }
             else
             {

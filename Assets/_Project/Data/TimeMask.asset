@@ -15,4 +15,6 @@ MonoBehaviour:
   maskId: 
   maskSprite: {fileID: 0}
   description: 
+  equipAnimationTrigger: EquipTimeMask
+  unequipAnimationTrigger: UnequipTimeMask
   pastWorldTint: {r: 0.7, g: 0.85, b: 1, a: 1}

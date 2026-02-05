@@ -6,6 +6,8 @@ using UnityEngine;
 /// </summary>
 public class GameConfig : MonoBehaviour
 {
+    public static GameConfig Instance { get; private set; }
+
     [Header("Target Frame Rate")]
     [SerializeField] private int targetFrameRate = 60;
 
@@ -14,7 +16,13 @@ public class GameConfig : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton simple - persiste entre escenas
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
         DontDestroyOnLoad(gameObject);
 
         // Frame rate objetivo

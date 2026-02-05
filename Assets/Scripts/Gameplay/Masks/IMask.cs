@@ -7,6 +7,8 @@ namespace Gameplay.Masks
     {
         string MaskId { get; }
         Sprite MaskSprite { get; }
+        string EquipAnimationTrigger { get; }
+        string UnequipAnimationTrigger { get; }
 
         void OnEquip(PlayerController player);
         void OnUnequip(PlayerController player);

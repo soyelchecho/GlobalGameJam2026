@@ -76,6 +76,11 @@ namespace Gameplay.Cinematic
             {
                 startPanel.SetActive(false);
             }
+
+            if (playerObject != null)
+            {
+                playerObject.SetActive(false);
+            }
         }
 
         private void Update()

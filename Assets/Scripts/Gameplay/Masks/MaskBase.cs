@@ -10,9 +10,15 @@ namespace Gameplay.Masks
         [SerializeField] protected Sprite maskSprite;
         [SerializeField] [TextArea] protected string description;
 
+        [Header("Animation")]
+        [SerializeField] protected string equipAnimationTrigger = "EquipMask";
+        [SerializeField] protected string unequipAnimationTrigger = "UnequipMask";
+
         public string MaskId => maskId;
         public Sprite MaskSprite => maskSprite;
         public string Description => description;
+        public string EquipAnimationTrigger => equipAnimationTrigger;
+        public string UnequipAnimationTrigger => unequipAnimationTrigger;
 
         public virtual void OnEquip(PlayerController player)
         {

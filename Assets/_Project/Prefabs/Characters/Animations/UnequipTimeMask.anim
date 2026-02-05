@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: UnequipMask
+  m_Name: UnequipTimeMask
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -47,9 +47,9 @@ AnimationClip:
     - time: 0.33333334
       value: {fileID: 21300000, guid: dd720cc70023b4e0c84892ad5244f459, type: 3}
     - time: 0.38333333
-      value: {fileID: 21300000, guid: 3e5c99f6a12c940c8be8741dc7f425ab, type: 3}
-    - time: 0.38333333
       value: {fileID: 21300000, guid: 271c1e4ff47ec4f1f8ead4527bd5a01c, type: 3}
+    - time: 0.38333333
+      value: {fileID: 21300000, guid: 3e5c99f6a12c940c8be8741dc7f425ab, type: 3}
     - time: 0.43333334
       value: {fileID: 21300000, guid: 5b1aacb867244457b8b0d757f5b8894e, type: 3}
     - time: 0.45
@@ -111,8 +111,8 @@ AnimationClip:
     - {fileID: 21300000, guid: 2cbd59909e4784271b964721403f3c4b, type: 3}
     - {fileID: 21300000, guid: 292a9ab46b0db4ec6aa6166d63cd53e0, type: 3}
     - {fileID: 21300000, guid: dd720cc70023b4e0c84892ad5244f459, type: 3}
-    - {fileID: 21300000, guid: 3e5c99f6a12c940c8be8741dc7f425ab, type: 3}
     - {fileID: 21300000, guid: 271c1e4ff47ec4f1f8ead4527bd5a01c, type: 3}
+    - {fileID: 21300000, guid: 3e5c99f6a12c940c8be8741dc7f425ab, type: 3}
     - {fileID: 21300000, guid: 5b1aacb867244457b8b0d757f5b8894e, type: 3}
     - {fileID: 21300000, guid: 688c3bbdf8eb342c49fc2b6de2920e71, type: 3}
     - {fileID: 21300000, guid: c6bce96ddc52a44259f9313246d030e8, type: 3}
