@@ -12,6 +12,11 @@ namespace Gameplay.Interactables
         [Header("Detection")]
         [SerializeField] private string playerTag = "Player";
 
+        [Header("Visuals")]
+        [Tooltip("Object to hide/destroy when picked up (optional)")]
+        [SerializeField] private GameObject objectToHide;
+        [SerializeField] private bool destroyInsteadOfHide;
+
         [Header("Events")]
         public UnityEvent OnPickedUp;
 
@@ -19,7 +24,6 @@ namespace Gameplay.Interactables
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            Debug.Log("[MaskPickup] Player touched pickup collider");
             if (hasBeenPickedUp) return;
             if (!other.CompareTag(playerTag)) return;
 
@@ -27,8 +31,16 @@ namespace Gameplay.Interactables
             if (maskManager == null) return;
 
             hasBeenPickedUp = true;
-            Debug.Log("[MaskPickup] Player touched pickup collider");
             maskManager.UnlockMaskEquipping();
+
+            if (objectToHide != null)
+            {
+                if (destroyInsteadOfHide)
+                    Destroy(objectToHide);
+                else
+                    objectToHide.SetActive(false);
+            }
+
             OnPickedUp?.Invoke();
         }
     }
