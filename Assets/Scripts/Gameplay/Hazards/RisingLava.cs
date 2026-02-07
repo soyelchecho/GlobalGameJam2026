@@ -4,6 +4,8 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Gameplay.Player;
 using Gameplay.Masks;
+using Gameplay.UI;
+using Gameplay.Audio;
 
 namespace Gameplay.Hazards
 {
@@ -56,9 +58,10 @@ namespace Gameplay.Hazards
         public UnityEvent OnPlayerTouched;
         public UnityEvent OnMaxHeightReached;
 
+        private static bool playerIsDead;
+
         private bool isRising;
         private bool hasReachedMax;
-        private bool hasKilledPlayer;
 
         public bool IsRising => isRising;
         public float RiseSpeed
@@ -69,6 +72,8 @@ namespace Gameplay.Hazards
 
         private void Start()
         {
+            playerIsDead = false;
+
             if (startMode == LavaStartMode.OnAwake)
             {
                 StartRising();
@@ -116,7 +121,7 @@ namespace Gameplay.Hazards
 
         private void Update()
         {
-            if (!isRising) return;
+            if (!isRising || playerIsDead) return;
 
             // Rise upward
             transform.position += Vector3.up * riseSpeed * Time.deltaTime;
@@ -149,10 +154,11 @@ namespace Gameplay.Hazards
 
         private void KillPlayer(GameObject player)
         {
-            if (hasKilledPlayer) return;
-            hasKilledPlayer = true;
+            if (playerIsDead) return;
+            playerIsDead = true;
 
-            // Freeze lava
+            // Stop this lava
+            StopAllCoroutines();
             isRising = false;
 
             // Disable ALL player components that could cause movement
@@ -173,12 +179,31 @@ namespace Gameplay.Hazards
             if (animator != null)
                 animator.SetTrigger(deathTrigger);
 
-            // Reload scene after delay
-            Invoke(nameof(ReloadScene), reloadDelay);
+            // Play death sound
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayDeath();
+
+            // Show death panel and reload after dismissed
+            StartCoroutine(DeathSequence());
         }
 
-        private void ReloadScene()
+        private IEnumerator DeathSequence()
         {
+            yield return new WaitForSeconds(reloadDelay);
+
+            // Show death panel
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowDeathPanel();
+
+                // Wait until panel is dismissed
+                while (UIManager.Instance.CurrentPanel == ActivePanel.Death)
+                {
+                    yield return null;
+                }
+            }
+
+            // Reload scene
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 

@@ -15,6 +15,8 @@ namespace Gameplay.Player
         [Header("Masks")]
         [SerializeField] private MaskBase timeMask;
 
+        public MaskBase TimeMask => timeMask;
+
         private void Awake()
         {
             if (maskManager == null)
@@ -50,7 +52,7 @@ namespace Gameplay.Player
             if (maskManager == null || timeMask == null) return;
 
             // Only equip if not already wearing this mask
-            if (maskManager.CurrentMask != timeMask)
+            if ((object)maskManager.CurrentMask != timeMask)
             {
                 maskManager.EquipMask(timeMask);
             }
