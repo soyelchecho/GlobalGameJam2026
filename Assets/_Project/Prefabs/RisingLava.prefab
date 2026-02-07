@@ -99,8 +99,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af76ed15d413c417197b1fe161505cd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  riseSpeed: 0.7
+  riseSpeed: 1.125
   startMode: 2
+  startDelay: 2
   playerEvents: {fileID: 11400000, guid: f8fc40cf2830b1042ab294f41569c163, type: 2}
   maxHeight: 0
   playerTag: Player
@@ -311,8 +312,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af76ed15d413c417197b1fe161505cd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  riseSpeed: 0.7
+  riseSpeed: 1.125
   startMode: 2
+  startDelay: 2
   playerEvents: {fileID: 11400000, guid: f8fc40cf2830b1042ab294f41569c163, type: 2}
   maxHeight: 0
   playerTag: Player
@@ -489,8 +491,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af76ed15d413c417197b1fe161505cd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  riseSpeed: 0.7
+  riseSpeed: 1.125
   startMode: 2
+  startDelay: 2
   playerEvents: {fileID: 11400000, guid: f8fc40cf2830b1042ab294f41569c163, type: 2}
   maxHeight: 0
   playerTag: Player

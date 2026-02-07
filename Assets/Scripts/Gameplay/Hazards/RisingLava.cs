@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Gameplay.Player;
+using Gameplay.Masks;
 
 namespace Gameplay.Hazards
 {
@@ -10,7 +11,8 @@ namespace Gameplay.Hazards
     {
         Manual,
         OnAwake,
-        OnFirstJump
+        OnFirstJump,
+        OnFirstJumpAfterMask
     }
 
     /// <summary>
@@ -29,8 +31,11 @@ namespace Gameplay.Hazards
         [Tooltip("Delay in seconds before lava starts rising")]
         [SerializeField] private float startDelay = 2f;
 
-        [Tooltip("PlayerEvents asset (required for OnFirstJump mode)")]
+        [Tooltip("PlayerEvents asset (required for OnFirstJump/OnFirstJumpAfterMask mode)")]
         [SerializeField] private PlayerEvents playerEvents;
+
+        [Tooltip("MaskManager reference (required for OnFirstJumpAfterMask mode)")]
+        [SerializeField] private MaskManager maskManager;
 
         [Tooltip("Maximum Y position the lava can reach (0 = no limit)")]
         [SerializeField] private float maxHeight = 0f;
@@ -54,7 +59,6 @@ namespace Gameplay.Hazards
         private bool isRising;
         private bool hasReachedMax;
         private bool hasKilledPlayer;
-        private GameObject frozenPlayer;
 
         public bool IsRising => isRising;
         public float RiseSpeed
@@ -73,6 +77,13 @@ namespace Gameplay.Hazards
             {
                 playerEvents.OnJump.AddListener(OnFirstJump);
             }
+            else if (startMode == LavaStartMode.OnFirstJumpAfterMask)
+            {
+                if (maskManager != null)
+                {
+                    maskManager.OnMaskUnlocked.AddListener(OnMaskUnlocked);
+                }
+            }
         }
 
         private void OnDestroy()
@@ -80,6 +91,20 @@ namespace Gameplay.Hazards
             if (playerEvents != null)
             {
                 playerEvents.OnJump.RemoveListener(OnFirstJump);
+            }
+            if (maskManager != null)
+            {
+                maskManager.OnMaskUnlocked.RemoveListener(OnMaskUnlocked);
+            }
+        }
+
+        private void OnMaskUnlocked()
+        {
+            maskManager.OnMaskUnlocked.RemoveListener(OnMaskUnlocked);
+
+            if (playerEvents != null)
+            {
+                playerEvents.OnJump.AddListener(OnFirstJump);
             }
         }
 
@@ -126,7 +151,6 @@ namespace Gameplay.Hazards
         {
             if (hasKilledPlayer) return;
             hasKilledPlayer = true;
-            frozenPlayer = player;
 
             // Freeze lava
             isRising = false;

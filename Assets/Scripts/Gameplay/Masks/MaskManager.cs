@@ -19,6 +19,7 @@ namespace Gameplay.Masks
         public MaskEquippedEvent OnMaskEquipped = new MaskEquippedEvent();
         public MaskUnequippedEvent OnMaskUnequipped = new MaskUnequippedEvent();
         public MaskAbilityUsedEvent OnMaskAbilityUsed = new MaskAbilityUsedEvent();
+        public UnityEvent OnMaskUnlocked = new UnityEvent();
 
         [Header("Visuals")]
         [Tooltip("Child GameObject containing the mask sprite overlay")]
@@ -33,9 +34,11 @@ namespace Gameplay.Masks
 
         private PlayerController playerController;
         private IMask currentMask;
+        private bool canEquipMask;
 
         public IMask CurrentMask => currentMask;
         public bool HasMask => currentMask != null;
+        public bool CanEquipMask => canEquipMask;
 
         private void Awake()
         {
@@ -57,6 +60,7 @@ namespace Gameplay.Masks
         public void EquipMask(IMask mask)
         {
             if (mask == null) return;
+            if (!canEquipMask) return;
 
             if (currentMask != null)
             {
@@ -136,6 +140,15 @@ namespace Gameplay.Masks
             if (currentMask == null) return;
 
             OnMaskAbilityUsed?.Invoke(currentMask);
+        }
+
+        public void UnlockMaskEquipping()
+        {
+            if (canEquipMask) return;
+
+            canEquipMask = true;
+            Debug.Log("[MaskManager] Mask equipping unlocked");
+            OnMaskUnlocked?.Invoke();
         }
 
         public T GetMaskAs<T>() where T : class, IMask
