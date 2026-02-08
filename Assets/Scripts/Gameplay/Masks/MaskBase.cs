@@ -14,11 +14,17 @@ namespace Gameplay.Masks
         [SerializeField] protected string equipAnimationTrigger = "EquipMask";
         [SerializeField] protected string unequipAnimationTrigger = "UnequipMask";
 
+        [Header("Audio")]
+        [SerializeField] protected AudioClip equipSound;
+        [SerializeField] protected AudioClip unequipSound;
+
         public string MaskId => maskId;
         public Sprite MaskSprite => maskSprite;
         public string Description => description;
         public string EquipAnimationTrigger => equipAnimationTrigger;
         public string UnequipAnimationTrigger => unequipAnimationTrigger;
+        public AudioClip EquipSound => equipSound;
+        public AudioClip UnequipSound => unequipSound;
 
         public virtual void OnEquip(PlayerController player)
         {

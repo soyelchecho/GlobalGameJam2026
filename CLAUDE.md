@@ -49,73 +49,106 @@ To show lava warning when lava starts rising, hook into `RisingLava` or call `UI
 
 ## Audio Management
 
-### AudioManager Setup
+Audio is split into 3 managers:
+
+### 1. AudioManager (Music)
 
 Location: `Assets/Scripts/Gameplay/Audio/AudioManager.cs`
 
-1. **Create AudioManager GameObject:**
-   - Create an empty GameObject named "AudioManager"
-   - Add the `AudioManager` component
-   - It will auto-create child AudioSources (Music, Ambient, SFX)
-   - Mark as `DontDestroyOnLoad` automatically
+- Handles background music only
+- Auto-plays on Start, loops continuously
+- DontDestroyOnLoad
 
-2. **Assign AudioClips in Inspector:**
-   - **Music:** Main theme
-   - **Character:** Jump, Death, Wall Scratch, Footsteps (Amethyst[], BurningRock[])
-   - **Props:** Crystal, Mask[] (randomly selected)
-   - **Stage:** Breaking Rock, Crystal Breaking, Levitating Mask
-   - **Environment:** Wind, Wind Fire, Lava+Wind+Fire, Lava Alone, Glass Environment
+**Setup:**
+1. Create GameObject "AudioManager"
+2. Add `AudioManager` component
+3. Assign `ggjMainTheme.wav` to Main Theme
 
-3. **Available Audio Files:**
-   ```
-   Assets/_Project/Audio/
-   ├── ggjMainTheme.wav
-   ├── Character/
-   │   ├── Jump.wav, Death.wav, Scratch Wall.wav
-   │   ├── Step Amatist 1.wav, Step Amatist 2.wav
-   │   └── Step burning rock 1.wav, Step burning rock 2.wav
-   ├── Props/
-   │   ├── Crystal.wav
-   │   └── Mask 1.wav, Mask 2.wav, Mask 3.wav
-   ├── Stage/
-   │   ├── breaking rock.wav, Crystal breaking.wav
-   │   └── Levitating Mask.wav
-   └── Environment/
-       ├── Wind.wav, Wind fire.wav
-       ├── Lava and wind fire. The best ;).wav
-       ├── Lava alone.wav
-       └── Glass environment.wav
-   ```
+**Usage:**
+```csharp
+AudioManager.Instance.PlayMusic();
+AudioManager.Instance.StopMusic();
+AudioManager.Instance.DuckMusic(0.2f);    // Lower to 20%
+AudioManager.Instance.RestoreMusicVolume();
+```
 
-4. **How to call from other scripts:**
-   ```csharp
-   using Gameplay.Audio;
+### 2. PlayerAudioManager (Player Sounds)
 
-   // Music
-   AudioManager.Instance.PlayMusic();
-   AudioManager.Instance.StopMusic();
+Location: `Assets/Scripts/Gameplay/Audio/PlayerAudioManager.cs`
 
-   // Ambient (loops)
-   AudioManager.Instance.PlayLavaAmbient();
-   AudioManager.Instance.PlayWindAmbient();
-   AudioManager.Instance.StopAmbient();
+- Handles jump, death, footsteps, wall scratch
+- Auto-hooks into PlayerEvents (jump, wall cling, state changes)
+- Footsteps play automatically while in Moving state
 
-   // SFX - Character
-   AudioManager.Instance.PlayJump();
-   AudioManager.Instance.PlayDeath();
-   AudioManager.Instance.PlayWallScratch();
-   AudioManager.Instance.PlayFootstepAmethyst();
-   AudioManager.Instance.PlayFootstepBurningRock();
+**Setup:**
+1. Add to Player GameObject
+2. Assign `PlayerEvents` ScriptableObject
+3. Assign clips: Jump, Death, Wall Scratch, Steps arrays
 
-   // SFX - Props
-   AudioManager.Instance.PlayMaskPickup();
-   AudioManager.Instance.PlayCrystal();
+**Clips to assign:**
+- `jumpClip` → Jump.wav
+- `deathClip` → Death.wav
+- `wallScratchClip` → Scratch Wall.wav
+- `stepsAmethyst[]` → Step Amatist 1.wav, Step Amatist 2.wav
+- `stepsBurningRock[]` → Step burning rock 1.wav, Step burning rock 2.wav
 
-   // SFX - Stage
-   AudioManager.Instance.PlayBreakingRock();
-   AudioManager.Instance.PlayCrystalBreaking();
+**Usage:**
+```csharp
+PlayerAudioManager.Instance.PlayJump();
+PlayerAudioManager.Instance.PlayDeath();
+PlayerAudioManager.Instance.PlayWallScratch();
+PlayerAudioManager.Instance.PlayFootstepAmethyst();
+```
 
-   // Volume
-   AudioManager.Instance.SetMasterVolume(0.8f);
-   AudioManager.Instance.SetMusicVolume(0.5f);
-   ```
+### 3. EnvironmentAudioManager (Ambient & Stage)
+
+Location: `Assets/Scripts/Gameplay/Audio/EnvironmentAudioManager.cs`
+
+- Handles ambient loops and stage/prop SFX
+
+**Setup:**
+1. Create GameObject "EnvironmentAudioManager"
+2. Add `EnvironmentAudioManager` component
+3. Assign ambient and SFX clips
+
+**Clips to assign:**
+- Ambient: Wind, Wind Fire, Lava+Wind+Fire, Lava Alone, Glass Environment
+- Stage: Breaking Rock, Crystal Breaking, Levitating Mask
+- Props: Crystal, Mask[] array
+
+**Usage:**
+```csharp
+// Ambient (loops)
+EnvironmentAudioManager.Instance.PlayLavaAmbient();
+EnvironmentAudioManager.Instance.PlayWindAmbient();
+EnvironmentAudioManager.Instance.StopAmbient();
+
+// Stage SFX
+EnvironmentAudioManager.Instance.PlayBreakingRock();
+EnvironmentAudioManager.Instance.PlayCrystalBreaking();
+
+// Props SFX
+EnvironmentAudioManager.Instance.PlayMaskPickup();
+EnvironmentAudioManager.Instance.PlayCrystal();
+```
+
+### Audio Files Reference
+```
+Assets/_Project/Audio/
+├── ggjMainTheme.wav
+├── Character/
+│   ├── Jump.wav, Death.wav, Scratch Wall.wav
+│   ├── Step Amatist 1.wav, Step Amatist 2.wav
+│   └── Step burning rock 1.wav, Step burning rock 2.wav
+├── Props/
+│   ├── Crystal.wav
+│   └── Mask 1.wav, Mask 2.wav, Mask 3.wav
+├── Stage/
+│   ├── breaking rock.wav, Crystal breaking.wav
+│   └── Levitating Mask.wav
+└── Environment/
+    ├── Wind.wav, Wind fire.wav
+    ├── Lava and wind fire. The best ;).wav
+    ├── Lava alone.wav
+    └── Glass environment.wav
+```

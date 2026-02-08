@@ -180,8 +180,8 @@ namespace Gameplay.Hazards
                 animator.SetTrigger(deathTrigger);
 
             // Play death sound
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlayDeath();
+            if (PlayerAudioManager.Instance != null)
+                PlayerAudioManager.Instance.PlayDeath();
 
             // Show death panel and reload after dismissed
             StartCoroutine(DeathSequence());
@@ -219,6 +219,10 @@ namespace Gameplay.Hazards
         {
             yield return new WaitForSeconds(startDelay);
             isRising = true;
+
+            // Switch to intense music
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayIntenseTheme();
         }
 
         /// <summary>

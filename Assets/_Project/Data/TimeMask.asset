@@ -17,4 +17,6 @@ MonoBehaviour:
   description: 
   equipAnimationTrigger: EquipTimeMask
   unequipAnimationTrigger: UnequipTimeMask
+  equipSound: {fileID: 8300000, guid: f4f97349c20c84433a46713232f62fe3, type: 3}
+  unequipSound: {fileID: 8300000, guid: f4f97349c20c84433a46713232f62fe3, type: 3}
   pastWorldTint: {r: 0.7, g: 0.85, b: 1, a: 1}

@@ -9,6 +9,8 @@ namespace Gameplay.Masks
         Sprite MaskSprite { get; }
         string EquipAnimationTrigger { get; }
         string UnequipAnimationTrigger { get; }
+        AudioClip EquipSound { get; }
+        AudioClip UnequipSound { get; }
 
         void OnEquip(PlayerController player);
         void OnUnequip(PlayerController player);

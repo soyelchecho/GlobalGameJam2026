@@ -17,5 +17,7 @@ MonoBehaviour:
   description: 
   equipAnimationTrigger: EquipStrengthMask
   unequipAnimationTrigger: UnequipStrengthMask
+  equipSound: {fileID: 8300000, guid: 706024e6781284790ababea3e73a9c35, type: 3}
+  unequipSound: {fileID: 8300000, guid: 706024e6781284790ababea3e73a9c35, type: 3}
   jumpMultiplier: 1
   speedMultiplier: 1

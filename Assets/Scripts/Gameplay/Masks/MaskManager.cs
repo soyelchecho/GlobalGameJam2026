@@ -29,6 +29,14 @@ namespace Gameplay.Masks
         [Tooltip("Animator for mask equip/unequip animations")]
         [SerializeField] private Animator maskAnimator;
 
+        [Header("Audio")]
+        [SerializeField] private AudioSource audioSource;
+        [Tooltip("Pitch for unequip sound (higher = faster)")]
+        [SerializeField] private float unequipPitch = 1.3f;
+        [Tooltip("Volume for unequip sound (lower than equip)")]
+        [Range(0f, 1f)]
+        [SerializeField] private float unequipVolume = 0.6f;
+
         [Header("Debug")]
         [SerializeField] private MaskBase startingMask;
 
@@ -43,6 +51,9 @@ namespace Gameplay.Masks
         private void Awake()
         {
             playerController = GetComponent<PlayerController>();
+
+            if (audioSource == null)
+                audioSource = gameObject.AddComponent<AudioSource>();
         }
 
         private void Start()
@@ -71,6 +82,13 @@ namespace Gameplay.Masks
             currentMask = mask;
             currentMask.OnEquip(playerController);
             OnMaskEquipped?.Invoke(currentMask);
+
+            // Play equip sound
+            if (currentMask.EquipSound != null && audioSource != null)
+            {
+                audioSource.pitch = 1f;
+                audioSource.PlayOneShot(currentMask.EquipSound);
+            }
 
             // Play animation, sprite will show when animation calls OnEquipAnimationComplete()
             if (maskAnimator != null && !string.IsNullOrEmpty(currentMask.EquipAnimationTrigger))
@@ -112,6 +130,13 @@ namespace Gameplay.Masks
             currentMask.OnUnequip(playerController);
             currentMask = null;
             OnMaskUnequipped?.Invoke(previousMask);
+
+            // Play unequip sound faster and quieter
+            if (previousMask.UnequipSound != null && audioSource != null)
+            {
+                audioSource.pitch = unequipPitch;
+                audioSource.PlayOneShot(previousMask.UnequipSound, unequipVolume);
+            }
 
             // Play animation, sprite will hide when animation calls OnUnequipAnimationComplete()
             if (maskAnimator != null && !string.IsNullOrEmpty(previousMask.UnequipAnimationTrigger))
