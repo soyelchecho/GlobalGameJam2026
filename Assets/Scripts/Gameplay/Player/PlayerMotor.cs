@@ -183,7 +183,8 @@ namespace Gameplay.Player
         {
             if (wallCheck == null) return false;
             Vector2 wallCheckDir = new Vector2(direction, 0);
-            RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, wallCheckDir, data.wallCheckDistance, data.AllWallLayers);
+            Vector2 boxSize = new Vector2(0.05f, data.wallCheckBoxHeight);
+            RaycastHit2D hit = Physics2D.BoxCast(wallCheck.position, boxSize, 0f, wallCheckDir, data.wallCheckDistance, data.AllWallLayers);
             return hit.collider != null;
         }
 
@@ -392,12 +393,17 @@ namespace Gameplay.Player
                 Gizmos.DrawLine(startPos + new Vector3(0, -halfHeight, 0), endPosLeft + new Vector3(0, -halfHeight, 0));
             }
 
-            // Wall check
+            // Wall check (box)
             Gizmos.color = Color.blue;
             if (wallCheck != null)
             {
-                Gizmos.DrawLine(wallCheck.position, wallCheck.position + Vector3.right * data.wallCheckDistance);
-                Gizmos.DrawLine(wallCheck.position, wallCheck.position + Vector3.left * data.wallCheckDistance);
+                float halfH = data.wallCheckBoxHeight * 0.5f;
+                // Right box
+                Vector3 rightCenter = wallCheck.position + Vector3.right * (data.wallCheckDistance * 0.5f);
+                Gizmos.DrawWireCube(rightCenter, new Vector3(data.wallCheckDistance, data.wallCheckBoxHeight, 0f));
+                // Left box
+                Vector3 leftCenter = wallCheck.position + Vector3.left * (data.wallCheckDistance * 0.5f);
+                Gizmos.DrawWireCube(leftCenter, new Vector3(data.wallCheckDistance, data.wallCheckBoxHeight, 0f));
             }
         }
     }

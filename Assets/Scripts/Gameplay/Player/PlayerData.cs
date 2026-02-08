@@ -46,6 +46,8 @@ namespace Gameplay.Player
 
         [Header("Wall Check")]
         public float wallCheckDistance = 0.5f;
+        [Tooltip("Size of the wall check box (height). Wider box detects irregular walls better.")]
+        public float wallCheckBoxHeight = 0.6f;
 
         /// <summary>
         /// Combined ground layers (solid + one-way platforms)
