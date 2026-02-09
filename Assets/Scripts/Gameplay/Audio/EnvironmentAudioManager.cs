@@ -80,6 +80,7 @@ namespace Gameplay.Audio
                 return;
             }
             Instance = this;
+            DontDestroyOnLoad(gameObject);
 
             CreateAudioSources();
         }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Gameplay.CameraSystem
@@ -35,6 +36,8 @@ namespace Gameplay.CameraSystem
         [SerializeField] private float maxY = 100f;
 
         private float startingY;
+        private float initialY;
+        private bool hasInitialized;
 
         [Header("Debug")]
         [SerializeField] private bool showDeadZone = true;
@@ -43,10 +46,57 @@ namespace Gameplay.CameraSystem
         private float currentVelocity; // For SmoothDamp
         private Camera cam;
 
+        // Cinematic mode
+        private bool isCinematicMode;
+        private Vector3 shakeOffset;
+        private Coroutine shakeCoroutine;
+
         private void Awake()
         {
             cam = GetComponent<Camera>();
             startingY = transform.position.y;
+
+            // Store initial Y only once (first time the scene loads)
+            if (!hasInitialized)
+            {
+                initialY = transform.position.y;
+                hasInitialized = true;
+            }
+        }
+
+        private void OnEnable()
+        {
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnDisable()
+        {
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+        {
+            ResetCamera();
+        }
+
+        /// <summary>
+        /// Reset camera to initial position
+        /// </summary>
+        public void ResetCamera()
+        {
+            Vector3 pos = transform.position;
+            pos.y = initialY;
+            transform.position = pos;
+            startingY = initialY;
+            currentVelocity = 0f;
+
+            // Re-find player target
+            target = null;
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                target = player.transform;
+            }
         }
 
         private void Start()
@@ -64,6 +114,9 @@ namespace Gameplay.CameraSystem
 
         private void LateUpdate()
         {
+            // In cinematic mode, don't follow target
+            if (isCinematicMode) return;
+
             if (target == null) return;
 
             float targetY = target.position.y;
@@ -136,6 +189,91 @@ namespace Gameplay.CameraSystem
         {
             target = newTarget;
         }
+
+        // ==========================================
+        // CINEMATIC MODE
+        // ==========================================
+
+        /// <summary>
+        /// Enable cinematic mode - stops following target
+        /// </summary>
+        public void EnableCinematicMode()
+        {
+            isCinematicMode = true;
+            currentVelocity = 0f;
+        }
+
+        /// <summary>
+        /// Disable cinematic mode - resumes following target
+        /// </summary>
+        public void DisableCinematicMode()
+        {
+            isCinematicMode = false;
+            shakeOffset = Vector3.zero;
+        }
+
+        public bool IsCinematicMode => isCinematicMode;
+
+        /// <summary>
+        /// Shake the camera
+        /// </summary>
+        public void Shake(float duration, float intensity)
+        {
+            if (shakeCoroutine != null)
+                StopCoroutine(shakeCoroutine);
+            shakeCoroutine = StartCoroutine(ShakeCoroutine(duration, intensity));
+        }
+
+        private IEnumerator ShakeCoroutine(float duration, float intensity)
+        {
+            Vector3 originalPos = transform.position;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                float x = Random.Range(-1f, 1f) * intensity;
+                float y = Random.Range(-1f, 1f) * intensity;
+
+                // Decrease intensity over time
+                float t = elapsed / duration;
+                float currentIntensity = Mathf.Lerp(1f, 0f, t);
+
+                shakeOffset = new Vector3(x, y, 0f) * currentIntensity;
+                transform.position = originalPos + shakeOffset;
+
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            shakeOffset = Vector3.zero;
+            transform.position = originalPos;
+            shakeCoroutine = null;
+        }
+
+        /// <summary>
+        /// Smoothly pan camera to a Y position
+        /// </summary>
+        public IEnumerator PanToY(float targetY, float duration)
+        {
+            Vector3 startPos = transform.position;
+            Vector3 endPos = new Vector3(startPos.x, targetY, startPos.z);
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+                transform.position = Vector3.Lerp(startPos, endPos, t);
+                yield return null;
+            }
+
+            transform.position = endPos;
+        }
+
+        /// <summary>
+        /// Get current camera Y position
+        /// </summary>
+        public float GetCurrentY() => transform.position.y;
 
         private void OnDrawGizmos()
         {
