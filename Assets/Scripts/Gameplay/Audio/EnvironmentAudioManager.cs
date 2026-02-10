@@ -5,6 +5,7 @@ namespace Gameplay.Audio
 {
     /// <summary>
     /// Handles environment audio: ambient loops with intervals, stage sounds.
+    /// Volume is controlled via VolumeManager.GetSFXVolume().
     ///
     /// SETUP:
     /// 1. Create empty GameObject "EnvironmentAudioManager"
@@ -15,10 +16,6 @@ namespace Gameplay.Audio
     public class EnvironmentAudioManager : MonoBehaviour
     {
         public static EnvironmentAudioManager Instance { get; private set; }
-
-        [Header("Volume")]
-        [Range(0f, 1f)] public float ambientVolume = 0.7f;
-        [Range(0f, 1f)] public float sfxVolume = 1f;
 
         [Header("Loop Settings")]
         [Tooltip("Start next loop this many seconds before current ends (overlap)")]
@@ -83,6 +80,13 @@ namespace Gameplay.Audio
             DontDestroyOnLoad(gameObject);
 
             CreateAudioSources();
+
+            VolumeManager.OnVolumeChanged += OnVolumeChanged;
+        }
+
+        private void OnDestroy()
+        {
+            VolumeManager.OnVolumeChanged -= OnVolumeChanged;
         }
 
         private void Start()
@@ -108,6 +112,14 @@ namespace Gameplay.Audio
             sfxSource = sfxObj.AddComponent<AudioSource>();
             sfxSource.loop = false;
             sfxSource.playOnAwake = false;
+        }
+
+        private void OnVolumeChanged()
+        {
+            if (ambientSource != null && ambientSource.isPlaying)
+            {
+                ambientSource.volume = VolumeManager.GetSFXVolume();
+            }
         }
 
         // ==========================================
@@ -150,7 +162,7 @@ namespace Gameplay.Audio
             while (true)
             {
                 ambientSource.clip = currentAmbientClip;
-                ambientSource.volume = ambientVolume;
+                ambientSource.volume = VolumeManager.GetSFXVolume();
                 ambientSource.Play();
 
                 // Wait for clip to almost finish, then restart (overlap)
@@ -174,12 +186,6 @@ namespace Gameplay.Audio
             }
             ambientSource.Stop();
             currentAmbientClip = null;
-        }
-
-        public void SetAmbientVolume(float volume)
-        {
-            ambientVolume = Mathf.Clamp01(volume);
-            ambientSource.volume = ambientVolume;
         }
 
         public void SetLoopOverlap(float overlap)
@@ -222,7 +228,7 @@ namespace Gameplay.Audio
         private void PlaySFX(AudioClip clip)
         {
             if (clip == null) return;
-            sfxSource.PlayOneShot(clip, sfxVolume);
+            sfxSource.PlayOneShot(clip, VolumeManager.GetSFXVolume());
         }
     }
 }

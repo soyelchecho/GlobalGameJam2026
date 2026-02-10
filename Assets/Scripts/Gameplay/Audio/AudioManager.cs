@@ -5,6 +5,7 @@ namespace Gameplay.Audio
 {
     /// <summary>
     /// Main audio manager - handles music with crossfade transitions.
+    /// Volume is controlled via VolumeManager (static, PlayerPrefs-backed).
     ///
     /// SETUP:
     /// 1. Create empty GameObject "AudioManager"
@@ -27,10 +28,6 @@ namespace Gameplay.Audio
         [Tooltip("Duration of crossfade transition in seconds")]
         [SerializeField] private float crossfadeDuration = 2f;
 
-        [Header("Volume")]
-        [Range(0f, 1f)] public float masterVolume = 1f;
-        [Range(0f, 1f)] public float musicVolume = 0.5f;
-
         private AudioSource musicSourceA;
         private AudioSource musicSourceB;
         private AudioSource activeSource;
@@ -48,6 +45,13 @@ namespace Gameplay.Audio
             DontDestroyOnLoad(gameObject);
 
             CreateMusicSources();
+
+            VolumeManager.OnVolumeChanged += UpdateMusicVolume;
+        }
+
+        private void OnDestroy()
+        {
+            VolumeManager.OnVolumeChanged -= UpdateMusicVolume;
         }
 
         private void CreateMusicSources()
@@ -107,7 +111,7 @@ namespace Gameplay.Audio
             fadeInSource.volume = 0f;
             fadeInSource.Play();
 
-            float targetVolume = musicVolume * masterVolume * duckMultiplier;
+            float targetVolume = VolumeManager.GetMusicVolume() * duckMultiplier;
             float elapsed = 0f;
 
             // Crossfade
@@ -155,26 +159,17 @@ namespace Gameplay.Audio
         }
 
         // ==========================================
-        // VOLUME CONTROLS
+        // VOLUME
         // ==========================================
-
-        public void SetMasterVolume(float volume)
-        {
-            masterVolume = Mathf.Clamp01(volume);
-            UpdateMusicVolume();
-        }
-
-        public void SetMusicVolume(float volume)
-        {
-            musicVolume = Mathf.Clamp01(volume);
-            UpdateMusicVolume();
-        }
 
         private void UpdateMusicVolume()
         {
-            float targetVolume = musicVolume * masterVolume * duckMultiplier;
-            if (activeSource != null)
-                activeSource.volume = targetVolume;
+            float targetVolume = VolumeManager.GetMusicVolume() * duckMultiplier;
+            // Update both sources (one may be fading during crossfade)
+            if (musicSourceA != null && musicSourceA.isPlaying)
+                musicSourceA.volume = targetVolume;
+            if (musicSourceB != null && musicSourceB.isPlaying)
+                musicSourceB.volume = targetVolume;
         }
 
         // ==========================================

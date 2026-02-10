@@ -8,12 +8,7 @@ namespace Gameplay.UI
     /// <summary>
     /// Main menu controller. Handles navigation between menu panels
     /// and options (volume sliders for mobile).
-    ///
-    /// Setup:
-    /// 1. Create a Canvas with 4 SpriteButton children (Inicio, Opciones, Creditos, Salir)
-    /// 2. Create sub-panels for Options and Credits
-    /// 3. Assign everything in the inspector
-    /// 4. Add this component to the Canvas or a manager object
+    /// Volume is managed through VolumeManager (static, PlayerPrefs-backed).
     /// </summary>
     public class MainMenu : MonoBehaviour
     {
@@ -87,16 +82,11 @@ namespace Gameplay.UI
 
         private void SetupSliders()
         {
-            // Load saved values or defaults
-            float savedMaster = PlayerPrefs.GetFloat("MasterVolume", 1f);
-            float savedMusic = PlayerPrefs.GetFloat("MusicVolume", 0.5f);
-            float savedSfx = PlayerPrefs.GetFloat("SFXVolume", 1f);
-
             if (masterVolumeSlider != null)
             {
                 masterVolumeSlider.minValue = 0f;
                 masterVolumeSlider.maxValue = 1f;
-                masterVolumeSlider.value = savedMaster;
+                masterVolumeSlider.value = Audio.VolumeManager.MasterVolume;
                 masterVolumeSlider.onValueChanged.AddListener(SetMasterVolume);
             }
 
@@ -104,7 +94,7 @@ namespace Gameplay.UI
             {
                 musicVolumeSlider.minValue = 0f;
                 musicVolumeSlider.maxValue = 1f;
-                musicVolumeSlider.value = savedMusic;
+                musicVolumeSlider.value = Audio.VolumeManager.MusicVolume;
                 musicVolumeSlider.onValueChanged.AddListener(SetMusicVolume);
             }
 
@@ -112,12 +102,9 @@ namespace Gameplay.UI
             {
                 sfxVolumeSlider.minValue = 0f;
                 sfxVolumeSlider.maxValue = 1f;
-                sfxVolumeSlider.value = savedSfx;
+                sfxVolumeSlider.value = Audio.VolumeManager.SFXVolume;
                 sfxVolumeSlider.onValueChanged.AddListener(SetSFXVolume);
             }
-
-            // Apply saved values immediately
-            ApplyAudioSettings(savedMaster, savedMusic, savedSfx);
         }
 
         #region Panel Navigation
@@ -139,7 +126,7 @@ namespace Gameplay.UI
 
         public void HideOptions()
         {
-            SaveAudioSettings();
+            Audio.VolumeManager.Save();
             ShowMainPanel();
             OnOptionsClosed?.Invoke();
         }
@@ -195,42 +182,21 @@ namespace Gameplay.UI
 
         #endregion
 
-        #region Audio Settings
+        #region Volume
 
         private void SetMasterVolume(float value)
         {
-            if (Audio.AudioManager.Instance != null)
-                Audio.AudioManager.Instance.SetMasterVolume(value);
+            Audio.VolumeManager.MasterVolume = value;
         }
 
         private void SetMusicVolume(float value)
         {
-            if (Audio.AudioManager.Instance != null)
-                Audio.AudioManager.Instance.SetMusicVolume(value);
+            Audio.VolumeManager.MusicVolume = value;
         }
 
         private void SetSFXVolume(float value)
         {
-            if (Audio.AudioManager.Instance != null)
-                Audio.AudioManager.Instance.SetSFXVolume(value);
-        }
-
-        private void ApplyAudioSettings(float master, float music, float sfx)
-        {
-            if (Audio.AudioManager.Instance != null)
-            {
-                Audio.AudioManager.Instance.SetMasterVolume(master);
-                Audio.AudioManager.Instance.SetMusicVolume(music);
-                Audio.AudioManager.Instance.SetSFXVolume(sfx);
-            }
-        }
-
-        private void SaveAudioSettings()
-        {
-            if (masterVolumeSlider != null) PlayerPrefs.SetFloat("MasterVolume", masterVolumeSlider.value);
-            if (musicVolumeSlider != null) PlayerPrefs.SetFloat("MusicVolume", musicVolumeSlider.value);
-            if (sfxVolumeSlider != null) PlayerPrefs.SetFloat("SFXVolume", sfxVolumeSlider.value);
-            PlayerPrefs.Save();
+            Audio.VolumeManager.SFXVolume = value;
         }
 
         #endregion

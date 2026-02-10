@@ -6,7 +6,7 @@ namespace Gameplay.Audio
 {
     /// <summary>
     /// Handles all player-related audio: jump, death, footsteps, wall interactions.
-    /// Automatically hooks into PlayerEvents.
+    /// Volume is controlled via VolumeManager.GetSFXVolume().
     ///
     /// SETUP:
     /// 1. Add to Player GameObject (or a child)
@@ -36,7 +36,6 @@ namespace Gameplay.Audio
 
         [Header("Footstep Settings")]
         [SerializeField] private float footstepInterval = 0.3f;
-        [Range(0f, 1f)] public float volume = 1f;
         [Range(0f, 1f)] public float footstepVolume = 0.75f;
 
         private float footstepTimer;
@@ -156,14 +155,14 @@ namespace Gameplay.Audio
         private void PlayClip(AudioClip clip)
         {
             if (clip == null || audioSource == null) return;
-            audioSource.PlayOneShot(clip, volume);
+            audioSource.PlayOneShot(clip, VolumeManager.GetSFXVolume());
         }
 
         private void PlayRandomClip(AudioClip[] clips, float clipVolume = -1f)
         {
             if (clips == null || clips.Length == 0) return;
             AudioClip clip = clips[Random.Range(0, clips.Length)];
-            float vol = clipVolume < 0 ? volume : clipVolume;
+            float vol = clipVolume < 0 ? VolumeManager.GetSFXVolume() : clipVolume * VolumeManager.GetSFXVolume();
             if (clip != null && audioSource != null)
                 audioSource.PlayOneShot(clip, vol);
         }

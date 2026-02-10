@@ -49,26 +49,57 @@ To show lava warning when lava starts rising, hook into `RisingLava` or call `UI
 
 ## Audio Management
 
-Audio is split into 3 managers:
+Audio uses a **centralized volume system** with 3 specialized managers:
+
+### VolumeManager (Central Volume Control)
+
+Location: `Assets/Scripts/Gameplay/Audio/VolumeManager.cs`
+
+- **Static class** - no GameObject needed, access from anywhere
+- Stores Master, Music, and SFX volumes in PlayerPrefs
+- All 3 audio managers read from VolumeManager automatically
+- Fires `OnVolumeChanged` event when any value changes
+
+**Usage from any script:**
+```csharp
+using Gameplay.Audio;
+
+// Set volumes (0-1 range, auto-saved to PlayerPrefs)
+VolumeManager.MasterVolume = 0.8f;
+VolumeManager.MusicVolume = 0.5f;
+VolumeManager.SFXVolume = 1f;
+
+// Get final computed volumes (category * master)
+float music = VolumeManager.GetMusicVolume(); // 0.4f (0.5 * 0.8)
+float sfx = VolumeManager.GetSFXVolume();     // 0.8f (1.0 * 0.8)
+
+// Persist to disk (call after slider adjustments)
+VolumeManager.Save();
+
+// Subscribe to changes
+VolumeManager.OnVolumeChanged += MyCallback;
+```
 
 ### 1. AudioManager (Music)
 
 Location: `Assets/Scripts/Gameplay/Audio/AudioManager.cs`
 
-- Handles background music only
-- Auto-plays on Start, loops continuously
+- Handles background music with crossfade between calm/intense themes
+- Volume: `VolumeManager.GetMusicVolume() * duckMultiplier`
+- Auto-subscribes to `VolumeManager.OnVolumeChanged`
 - DontDestroyOnLoad
 
 **Setup:**
 1. Create GameObject "AudioManager"
 2. Add `AudioManager` component
-3. Assign `ggjMainTheme.wav` to Main Theme
+3. Assign calm and intense theme clips
 
 **Usage:**
 ```csharp
-AudioManager.Instance.PlayMusic();
+AudioManager.Instance.PlayCalmTheme();
+AudioManager.Instance.PlayIntenseTheme();
 AudioManager.Instance.StopMusic();
-AudioManager.Instance.DuckMusic(0.2f);    // Lower to 20%
+AudioManager.Instance.DuckMusic(0.2f);
 AudioManager.Instance.RestoreMusicVolume();
 ```
 
@@ -77,20 +108,13 @@ AudioManager.Instance.RestoreMusicVolume();
 Location: `Assets/Scripts/Gameplay/Audio/PlayerAudioManager.cs`
 
 - Handles jump, death, footsteps, wall scratch
+- Volume: `VolumeManager.GetSFXVolume()` (reads on each PlayOneShot)
 - Auto-hooks into PlayerEvents (jump, wall cling, state changes)
-- Footsteps play automatically while in Moving state
 
 **Setup:**
 1. Add to Player GameObject
 2. Assign `PlayerEvents` ScriptableObject
 3. Assign clips: Jump, Death, Wall Scratch, Steps arrays
-
-**Clips to assign:**
-- `jumpClip` → Jump.wav
-- `deathClip` → Death.wav
-- `wallScratchClip` → Scratch Wall.wav
-- `stepsAmethyst[]` → Step Amatist 1.wav, Step Amatist 2.wav
-- `stepsBurningRock[]` → Step burning rock 1.wav, Step burning rock 2.wav
 
 **Usage:**
 ```csharp
@@ -105,16 +129,14 @@ PlayerAudioManager.Instance.PlayFootstepAmethyst();
 Location: `Assets/Scripts/Gameplay/Audio/EnvironmentAudioManager.cs`
 
 - Handles ambient loops and stage/prop SFX
+- Volume: `VolumeManager.GetSFXVolume()` for both ambient and SFX
+- Auto-subscribes to `VolumeManager.OnVolumeChanged` for live ambient updates
+- DontDestroyOnLoad
 
 **Setup:**
 1. Create GameObject "EnvironmentAudioManager"
 2. Add `EnvironmentAudioManager` component
 3. Assign ambient and SFX clips
-
-**Clips to assign:**
-- Ambient: Wind, Wind Fire, Lava+Wind+Fire, Lava Alone, Glass Environment
-- Stage: Breaking Rock, Crystal Breaking, Levitating Mask
-- Props: Crystal, Mask[] array
 
 **Usage:**
 ```csharp
@@ -128,7 +150,6 @@ EnvironmentAudioManager.Instance.PlayBreakingRock();
 EnvironmentAudioManager.Instance.PlayCrystalBreaking();
 
 // Props SFX
-EnvironmentAudioManager.Instance.PlayMaskPickup();
 EnvironmentAudioManager.Instance.PlayCrystal();
 ```
 

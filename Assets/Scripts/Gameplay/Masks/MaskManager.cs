@@ -87,7 +87,7 @@ namespace Gameplay.Masks
             if (currentMask.EquipSound != null && audioSource != null)
             {
                 audioSource.pitch = 1f;
-                audioSource.PlayOneShot(currentMask.EquipSound);
+                audioSource.PlayOneShot(currentMask.EquipSound, Audio.VolumeManager.GetSFXVolume());
             }
 
             // Play animation, sprite will show when animation calls OnEquipAnimationComplete()
@@ -135,7 +135,7 @@ namespace Gameplay.Masks
             if (previousMask.UnequipSound != null && audioSource != null)
             {
                 audioSource.pitch = unequipPitch;
-                audioSource.PlayOneShot(previousMask.UnequipSound, unequipVolume);
+                audioSource.PlayOneShot(previousMask.UnequipSound, unequipVolume * Audio.VolumeManager.GetSFXVolume());
             }
 
             // Play animation, sprite will hide when animation calls OnUnequipAnimationComplete()

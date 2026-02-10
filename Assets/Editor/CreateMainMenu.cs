@@ -283,6 +283,7 @@ namespace GameEditor
             label.alignment = TextAnchor.MiddleLeft;
             label.color = Color.white;
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+            label.raycastTarget = false;
 
             LayoutElement labelLayout = labelGO.AddComponent<LayoutElement>();
             labelLayout.preferredWidth = 300;
@@ -306,6 +307,10 @@ namespace GameEditor
             RectTransform sliderRect = sliderGO.AddComponent<RectTransform>();
             sliderRect.sizeDelta = new Vector2(400, 40);
 
+            // Transparent image so slider receives raycasts
+            Image sliderBgImg = sliderGO.AddComponent<Image>();
+            sliderBgImg.color = new Color(0, 0, 0, 0);
+
             Slider slider = sliderGO.AddComponent<Slider>();
             slider.minValue = 0f;
             slider.maxValue = 1f;
@@ -322,6 +327,7 @@ namespace GameEditor
             bgRect.offsetMax = Vector2.zero;
             Image bgImg = bg.AddComponent<Image>();
             bgImg.color = new Color(0.3f, 0.3f, 0.3f, 1f);
+            bgImg.raycastTarget = false;
 
             // Fill Area
             GameObject fillArea = new GameObject("Fill Area");
@@ -341,6 +347,7 @@ namespace GameEditor
             fillRect.offsetMax = Vector2.zero;
             Image fillImg = fill.AddComponent<Image>();
             fillImg.color = new Color(0.8f, 0.4f, 1f, 1f);
+            fillImg.raycastTarget = false;
 
             // Handle Slide Area
             GameObject handleArea = new GameObject("Handle Slide Area");
