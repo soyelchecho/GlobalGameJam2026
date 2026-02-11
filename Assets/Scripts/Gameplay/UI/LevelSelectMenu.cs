@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Gameplay.Audio;
 
 namespace Gameplay.UI
 {
@@ -38,6 +39,9 @@ namespace Gameplay.UI
 
         private void Start()
         {
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.DuckMusic(0.6f);
+
             if (backButton != null)
                 backButton.onClick.AddListener(GoToMainMenu);
 
@@ -60,6 +64,9 @@ namespace Gameplay.UI
 
             OnLevelSelected?.Invoke(index);
 
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.RestoreMusicVolume();
+
             if (useLoadingScreen && LoadingScreen.Instance != null)
             {
                 if (level.useSceneIndex)
@@ -79,6 +86,9 @@ namespace Gameplay.UI
         private void GoToMainMenu()
         {
             OnBackPressed?.Invoke();
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.RestoreMusicVolume();
 
             if (useLoadingScreen && LoadingScreen.Instance != null)
                 LoadingScreen.Instance.LoadScene(mainMenuSceneName);

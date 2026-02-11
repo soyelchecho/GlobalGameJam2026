@@ -108,52 +108,40 @@ namespace Gameplay.Player
         {
             if (groundCheck == null) return false;
 
-            float checkWidth = data.groundCheckSize * 2f;
+            // Use a BoxCast the width of the player's collider, cast downward.
+            // This avoids side raycasts clipping into adjacent wall colliders.
+            float boxWidth = playerCollider.bounds.size.x * 0.9f; // slightly narrower to avoid edges
+            float boxHeight = 0.05f;
+            Vector2 boxSize = new Vector2(boxWidth, boxHeight);
             float checkDistance = data.groundCheckSize;
             Vector2 origin = groundCheck.position;
 
-            // Use multiple raycasts to detect diagonal surfaces and edges
-            // Center, left, and right raycasts
-            RaycastHit2D hitCenter = Physics2D.Raycast(origin, Vector2.down, checkDistance, data.AllGroundLayers);
-            RaycastHit2D hitLeft = Physics2D.Raycast(origin + Vector2.left * (checkWidth * 0.5f), Vector2.down, checkDistance, data.AllGroundLayers);
-            RaycastHit2D hitRight = Physics2D.Raycast(origin + Vector2.right * (checkWidth * 0.5f), Vector2.down, checkDistance, data.AllGroundLayers);
+            RaycastHit2D hit = Physics2D.BoxCast(
+                origin,
+                boxSize,
+                0f,
+                Vector2.down,
+                checkDistance,
+                data.AllGroundLayers
+            );
 
-            // Also cast diagonally to catch slopes
-            RaycastHit2D hitDiagLeft = Physics2D.Raycast(origin, new Vector2(-0.3f, -1f).normalized, checkDistance * 1.2f, data.AllGroundLayers);
-            RaycastHit2D hitDiagRight = Physics2D.Raycast(origin, new Vector2(0.3f, -1f).normalized, checkDistance * 1.2f, data.AllGroundLayers);
+            if (hit.collider == null) return false;
+            if (hit.distance <= 0f) return false;
+            if (hit.normal.y <= 0.4f) return false;
 
-            // Check if any ray hit something
-            RaycastHit2D[] hits = { hitCenter, hitLeft, hitRight, hitDiagLeft, hitDiagRight };
-
-            foreach (var hit in hits)
+            // For one-way platforms: special checks
+            if (((1 << hit.collider.gameObject.layer) & data.oneWayPlatformLayer) != 0)
             {
-                if (hit.collider == null) continue;
+                if (rb.velocity.y > 0.5f) return false;
 
-                // For diagonal surfaces, accept normals with y > 0.4 (more permissive)
-                // This allows slopes up to ~66 degrees
-                if (hit.normal.y <= 0.4f) continue;
-
-                // For one-way platforms: special checks
-                if (((1 << hit.collider.gameObject.layer) & data.oneWayPlatformLayer) != 0)
-                {
-                    // If moving upward fast, ignore one-way platforms (jumping through)
-                    if (rb.velocity.y > 0.5f) continue;
-
-                    // Make sure player is FULLY above, not passing through
-                    float playerBottom = playerCollider.bounds.min.y;
-                    float platformTop = hit.collider.bounds.max.y;
-
-                    float tolerance = Mathf.Min(0.2f, hit.collider.bounds.size.y * 0.5f);
-                    if (playerBottom < platformTop - tolerance)
-                    {
-                        continue; // Still passing through, try next hit
-                    }
-                }
-
-                return true; // Found valid ground
+                float playerBottom = playerCollider.bounds.min.y;
+                float platformTop = hit.collider.bounds.max.y;
+                float tolerance = Mathf.Min(0.2f, hit.collider.bounds.size.y * 0.5f);
+                if (playerBottom < platformTop - tolerance)
+                    return false;
             }
 
-            return false;
+            return true;
         }
 
         public bool IsOnOneWayPlatform()
@@ -335,35 +323,27 @@ namespace Gameplay.Player
         {
             if (data == null) return;
 
-            // Ground check (multi-raycast visualization)
+            // Ground check (BoxCast visualization)
             if (groundCheck != null)
             {
-                float checkWidth = data.groundCheckSize * 2f;
                 float checkDistance = data.groundCheckSize;
                 Vector3 origin = groundCheck.position;
 
+                // Get collider width (use groundCheckSize as fallback in editor)
+                Collider2D col = GetComponent<Collider2D>();
+                float boxWidth = col != null ? col.bounds.size.x * 0.9f : data.groundCheckSize * 2f;
+                float boxHeight = 0.05f;
+
                 Gizmos.color = Color.green;
-
-                // Center raycast
-                Gizmos.DrawLine(origin, origin + Vector3.down * checkDistance);
-                Gizmos.DrawWireSphere(origin + Vector3.down * checkDistance, 0.03f);
-
-                // Left raycast
-                Vector3 leftOrigin = origin + Vector3.left * (checkWidth * 0.5f);
-                Gizmos.DrawLine(leftOrigin, leftOrigin + Vector3.down * checkDistance);
-                Gizmos.DrawWireSphere(leftOrigin + Vector3.down * checkDistance, 0.03f);
-
-                // Right raycast
-                Vector3 rightOrigin = origin + Vector3.right * (checkWidth * 0.5f);
-                Gizmos.DrawLine(rightOrigin, rightOrigin + Vector3.down * checkDistance);
-                Gizmos.DrawWireSphere(rightOrigin + Vector3.down * checkDistance, 0.03f);
-
-                // Diagonal raycasts (for slopes)
-                Gizmos.color = Color.cyan;
-                Vector3 diagLeft = new Vector3(-0.3f, -1f, 0).normalized * checkDistance * 1.2f;
-                Vector3 diagRight = new Vector3(0.3f, -1f, 0).normalized * checkDistance * 1.2f;
-                Gizmos.DrawLine(origin, origin + diagLeft);
-                Gizmos.DrawLine(origin, origin + diagRight);
+                // Start box
+                Gizmos.DrawWireCube(origin, new Vector3(boxWidth, boxHeight, 0));
+                // End box (where the cast reaches)
+                Vector3 endPos = origin + Vector3.down * checkDistance;
+                Gizmos.DrawWireCube(endPos, new Vector3(boxWidth, boxHeight, 0));
+                // Connecting lines
+                float halfW = boxWidth * 0.5f;
+                Gizmos.DrawLine(origin + Vector3.left * halfW, endPos + Vector3.left * halfW);
+                Gizmos.DrawLine(origin + Vector3.right * halfW, endPos + Vector3.right * halfW);
             }
 
             // Front check (chest height)

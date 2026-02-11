@@ -37,16 +37,34 @@ namespace Gameplay.Masks
         [Range(0f, 1f)]
         [SerializeField] private float unequipVolume = 0.6f;
 
+        [Header("Duration")]
+        [Tooltip("How long the mask stays equipped before auto-unequipping (seconds)")]
+        [SerializeField] private float maskDuration = 10f;
+        [Tooltip("Cooldown before the mask can be re-equipped after expiring (0 = no cooldown)")]
+        [SerializeField] private float cooldownDuration = 0f;
+
         [Header("Debug")]
         [SerializeField] private MaskBase startingMask;
 
         private PlayerController playerController;
         private IMask currentMask;
         private bool canEquipMask;
+        private float remainingTime;
+        private float cooldownTimer;
+        private bool isOnCooldown;
+        private bool timerPaused;
 
         public IMask CurrentMask => currentMask;
         public bool HasMask => currentMask != null;
         public bool CanEquipMask => canEquipMask;
+        public bool IsOnCooldown => isOnCooldown;
+
+        /// <summary>
+        /// Normalized mask time remaining (1 = full, 0 = expired). Returns 0 when no mask equipped.
+        /// </summary>
+        public float MaskTimeNormalized => (currentMask != null && maskDuration > 0f)
+            ? Mathf.Clamp01(remainingTime / maskDuration)
+            : 0f;
 
         private void Awake()
         {
@@ -68,10 +86,42 @@ namespace Gameplay.Masks
             }
         }
 
+        private void Update()
+        {
+            // Tick mask duration
+            if (currentMask != null && maskDuration > 0f && !timerPaused)
+            {
+                remainingTime -= Time.deltaTime;
+                if (remainingTime <= 0f)
+                {
+                    remainingTime = 0f;
+                    UnequipCurrentMask();
+
+                    // Start cooldown if configured
+                    if (cooldownDuration > 0f)
+                    {
+                        isOnCooldown = true;
+                        cooldownTimer = cooldownDuration;
+                    }
+                }
+            }
+
+            // Tick cooldown
+            if (isOnCooldown)
+            {
+                cooldownTimer -= Time.deltaTime;
+                if (cooldownTimer <= 0f)
+                {
+                    isOnCooldown = false;
+                }
+            }
+        }
+
         public void EquipMask(IMask mask)
         {
             if (mask == null) return;
             if (!canEquipMask) return;
+            if (isOnCooldown) return;
 
             if (currentMask != null)
             {
@@ -80,6 +130,7 @@ namespace Gameplay.Masks
 
             // Equip mask logic immediately
             currentMask = mask;
+            remainingTime = maskDuration;
             currentMask.OnEquip(playerController);
             OnMaskEquipped?.Invoke(currentMask);
 
@@ -174,6 +225,16 @@ namespace Gameplay.Masks
             canEquipMask = true;
             Debug.Log("[MaskManager] Mask equipping unlocked");
             OnMaskUnlocked?.Invoke();
+        }
+
+        public void PauseTimer()
+        {
+            timerPaused = true;
+        }
+
+        public void ResumeTimer()
+        {
+            timerPaused = false;
         }
 
         public T GetMaskAs<T>() where T : class, IMask

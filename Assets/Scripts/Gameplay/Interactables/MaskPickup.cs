@@ -85,6 +85,9 @@ namespace Gameplay.Interactables
             if (playerMaskController != null && playerMaskController.TimeMask != null)
                 maskManager.EquipMask(playerMaskController.TimeMask);
 
+            // Pause timer while showing info panel
+            maskManager.PauseTimer();
+
             yield return new WaitForSeconds(pauseDuration);
 
             // Show mask info panel and wait for dismiss
@@ -98,6 +101,9 @@ namespace Gameplay.Interactables
                     yield return null;
                 }
             }
+
+            // Resume timer after panel dismissed
+            maskManager.ResumeTimer();
 
             // Unfreeze player
             if (player != null)
