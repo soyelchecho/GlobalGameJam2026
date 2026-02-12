@@ -17,6 +17,9 @@ namespace Gameplay.Interactables
         [Header("Collision")]
         [SerializeField] private Collider2D solidCollider;
 
+        [Header("Audio")]
+        [SerializeField] private AudioClip breakSound;
+
         [Header("Break Requirements")]
         [Tooltip("If true, requires a mask to break")]
         [SerializeField] private bool requiresMask = true;
@@ -70,6 +73,14 @@ namespace Gameplay.Interactables
 
             IsBroken = true;
             Debug.Log($"[BreakableObject] {name} - Break() called");
+
+            // Play break sound
+            if (breakSound != null)
+            {
+                var audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.spatialBlend = 0f;
+                audioSource.PlayOneShot(breakSound, Gameplay.Audio.VolumeManager.GetSFXVolume());
+            }
 
             // Disable collision so player can pass through
             if (solidCollider != null)

@@ -104,44 +104,54 @@ namespace Gameplay.Player
             }
         }
 
+        // Pre-allocated buffer for BoxCastAll to avoid GC
+        private readonly RaycastHit2D[] groundHitsBuffer = new RaycastHit2D[8];
+
         public bool CheckGrounded()
         {
             if (groundCheck == null) return false;
 
-            // Use a BoxCast the width of the player's collider, cast downward.
-            // This avoids side raycasts clipping into adjacent wall colliders.
-            float boxWidth = playerCollider.bounds.size.x * 0.9f; // slightly narrower to avoid edges
+            // Use BoxCastAll the width of the player's collider, cast downward.
+            // BoxCastAll checks all hits so seams between adjacent colliders don't cause false negatives.
+            float boxWidth = playerCollider.bounds.size.x * 0.7f;
             float boxHeight = 0.05f;
             Vector2 boxSize = new Vector2(boxWidth, boxHeight);
             float checkDistance = data.groundCheckSize;
             Vector2 origin = groundCheck.position;
 
-            RaycastHit2D hit = Physics2D.BoxCast(
+            int hitCount = Physics2D.BoxCastNonAlloc(
                 origin,
                 boxSize,
                 0f,
                 Vector2.down,
+                groundHitsBuffer,
                 checkDistance,
                 data.AllGroundLayers
             );
 
-            if (hit.collider == null) return false;
-            if (hit.distance <= 0f) return false;
-            if (hit.normal.y <= 0.4f) return false;
-
-            // For one-way platforms: special checks
-            if (((1 << hit.collider.gameObject.layer) & data.oneWayPlatformLayer) != 0)
+            for (int i = 0; i < hitCount; i++)
             {
-                if (rb.velocity.y > 0.5f) return false;
+                var hit = groundHitsBuffer[i];
+                if (hit.collider == null) continue;
+                if (hit.distance <= 0f) continue;
+                if (hit.normal.y <= 0.4f) continue;
 
-                float playerBottom = playerCollider.bounds.min.y;
-                float platformTop = hit.collider.bounds.max.y;
-                float tolerance = Mathf.Min(0.2f, hit.collider.bounds.size.y * 0.5f);
-                if (playerBottom < platformTop - tolerance)
-                    return false;
+                // For one-way platforms: special checks
+                if (((1 << hit.collider.gameObject.layer) & data.oneWayPlatformLayer) != 0)
+                {
+                    if (rb.velocity.y > 0.5f) continue;
+
+                    float playerBottom = playerCollider.bounds.min.y;
+                    float platformTop = hit.collider.bounds.max.y;
+                    float tolerance = Mathf.Min(0.2f, hit.collider.bounds.size.y * 0.5f);
+                    if (playerBottom < platformTop - tolerance)
+                        continue;
+                }
+
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         public bool IsOnOneWayPlatform()

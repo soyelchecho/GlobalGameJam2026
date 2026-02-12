@@ -153,6 +153,53 @@ EnvironmentAudioManager.Instance.PlayCrystalBreaking();
 EnvironmentAudioManager.Instance.PlayCrystal();
 ```
 
+### Mask Duration & Timer UI
+
+The mask auto-unequips after a configurable duration with an optional cooldown before re-equip.
+
+**MaskManager** (`Assets/Scripts/Gameplay/Masks/MaskManager.cs`):
+- `maskDuration` (default 10s) — how long the mask stays equipped
+- `cooldownDuration` (default 0s) — delay before re-equip after expiry
+- `MaskTimeNormalized` — property returning 1→0 as time drains (used by UI)
+- `PauseTimer()` / `ResumeTimer()` — pauses/resumes the countdown (used by MaskPickup to wait for panel dismissal)
+- Timer starts on `EquipMask()`, auto-calls `UnequipCurrentMask()` when expired
+
+**MaskTimerUI** (`Assets/Scripts/Gameplay/UI/MaskTimerUI.cs`):
+- Circular draining UI showing remaining mask time
+- Assign a UI Image with Fill Method → Radial 360, Fill Origin → Top, Clockwise
+- Listens to `MaskManager.OnMaskEquipped` / `OnMaskUnequipped` to show/hide
+- Toggles `fillImage.enabled` (not GameObject active) to keep event listeners alive
+
+**MaskPickup** (`Assets/Scripts/Gameplay/Interactables/MaskPickup.cs`):
+- On first equip: calls `PauseTimer()` immediately, then `ResumeTimer()` after mask info panel is dismissed
+- This prevents the timer from ticking while the player reads the info panel
+
+### Height Indicator UI
+
+**HeightIndicatorUI** (`Assets/Scripts/Gameplay/UI/HeightIndicatorUI.cs`):
+- Shows climbing progress with a mask sprite moving along a vertical track
+- Finds player via `"Player"` tag
+- `groundY` / `targetY` — world Y bounds (ground start → end level trigger)
+- Maps player Y to the track's vertical range via `anchoredPosition`
+
+**Setup:**
+1. Create a vertical UI Image for the track (thin bar, anchored to screen side)
+2. Add a child UI Image with mask sprite (pivot 0.5, 0 — anchored to parent bottom)
+3. Add `HeightIndicatorUI`, assign Indicator Image + Track Rect Transform
+4. Set Ground Y = player start Y, Target Y = EndLevelTrigger Y
+
+### Level Select Music Duck
+
+`LevelSelectMenu` (`Assets/Scripts/Gameplay/UI/LevelSelectMenu.cs`) ducks music to 60% on `Start()` and restores on scene exit (selecting a level or going back to main menu).
+
+### Ground Check
+
+`PlayerMotor.CheckGrounded()` uses a **BoxCast** (90% of player collider width) cast downward — not individual raycasts — to avoid false grounding against wall edges.
+
+### Known Issues
+
+- **Panel dismiss input leaks to player:** When dismissing MaskInfo/Death panels, the tap/click also triggers player actions (e.g. jump). Not yet fixed — needs input consumption between UIManager and TouchInputHandler.
+
 ### Audio Files Reference
 ```
 Assets/_Project/Audio/

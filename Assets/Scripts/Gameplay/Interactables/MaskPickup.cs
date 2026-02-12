@@ -25,6 +25,9 @@ namespace Gameplay.Interactables
         [SerializeField] private bool equipOnPickup;
         [SerializeField] private float pauseDuration = 0.5f;
 
+        [Header("Audio")]
+        [SerializeField] private AudioClip pickupSound;
+
         [Header("UI")]
         [Tooltip("Show mask info panel after pickup")]
         [SerializeField] private bool showMaskInfoPanel;
@@ -43,6 +46,13 @@ namespace Gameplay.Interactables
             if (maskManager == null) return;
 
             hasBeenPickedUp = true;
+
+            if (pickupSound != null)
+            {
+                var audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.spatialBlend = 0f;
+                audioSource.PlayOneShot(pickupSound, Gameplay.Audio.VolumeManager.GetSFXVolume());
+            }
 
             if (objectToHide != null)
             {

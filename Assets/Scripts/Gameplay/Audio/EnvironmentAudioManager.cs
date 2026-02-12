@@ -55,9 +55,20 @@ namespace Gameplay.Audio
         [Tooltip("Crystal pickup/interaction sound")]
         public AudioClip crystalClip;
 
+        [Header("Periodic Crystal Sound")]
+        [Tooltip("Enable periodic crystal ambient sound")]
+        [SerializeField] private bool enablePeriodicCrystal;
+        [Tooltip("Clip to play periodically")]
+        [SerializeField] private AudioClip periodicCrystalClip;
+        [Tooltip("Minimum interval between plays")]
+        [SerializeField] private float periodicMinInterval = 2f;
+        [Tooltip("Maximum interval between plays")]
+        [SerializeField] private float periodicMaxInterval = 3f;
+
         private AudioSource ambientSource;
         private AudioSource sfxSource;
         private Coroutine loopCoroutine;
+        private Coroutine periodicCrystalCoroutine;
         private AudioClip currentAmbientClip;
 
         public enum AmbientType
@@ -94,6 +105,11 @@ namespace Gameplay.Audio
             if (autoPlay)
             {
                 PlayAmbientByType(autoPlayType);
+            }
+
+            if (enablePeriodicCrystal && periodicCrystalClip != null)
+            {
+                periodicCrystalCoroutine = StartCoroutine(PeriodicCrystalLoop());
             }
         }
 
@@ -219,6 +235,21 @@ namespace Gameplay.Audio
         public void PlayCrystal()
         {
             PlaySFX(crystalClip);
+        }
+
+        // ==========================================
+        // PERIODIC CRYSTAL
+        // ==========================================
+
+        private IEnumerator PeriodicCrystalLoop()
+        {
+            while (true)
+            {
+                PlaySFX(periodicCrystalClip);
+                float clipLength = periodicCrystalClip.length;
+                float pause = Random.Range(periodicMinInterval, periodicMaxInterval);
+                yield return new WaitForSeconds(clipLength + pause);
+            }
         }
 
         // ==========================================

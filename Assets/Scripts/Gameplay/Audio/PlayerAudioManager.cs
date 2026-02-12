@@ -19,6 +19,7 @@ namespace Gameplay.Audio
 
         [Header("References")]
         [SerializeField] private PlayerEvents playerEvents;
+        [SerializeField] private TouchInputHandler touchInputHandler;
 
         [Header("Audio Source")]
         [SerializeField] private AudioSource audioSource;
@@ -28,16 +29,18 @@ namespace Gameplay.Audio
         public AudioClip deathClip;
         public AudioClip wallScratchClip;
 
-        [Header("Footsteps - Amethyst")]
-        public AudioClip[] stepsAmethyst;
-
         [Header("Footsteps - Burning Rock")]
         public AudioClip[] stepsBurningRock;
+
+        [Header("Swipe Sound Settings")]
+        [Tooltip("Pitch for left/right swipe jump sound (< 1 = lower)")]
+        [SerializeField] private float swipePitch = 0.7f;
 
         [Header("Footstep Settings")]
         [SerializeField] private float footstepInterval = 0.3f;
         [Range(0f, 1f)] public float footstepVolume = 0.75f;
 
+        private AudioSource pitchedAudioSource;
         private float footstepTimer;
         private bool isMoving;
         private PlayerState currentState;
@@ -53,24 +56,41 @@ namespace Gameplay.Audio
 
             if (audioSource == null)
                 audioSource = gameObject.AddComponent<AudioSource>();
+
+            pitchedAudioSource = gameObject.AddComponent<AudioSource>();
+            pitchedAudioSource.spatialBlend = 0f;
         }
 
         private void OnEnable()
         {
-            if (playerEvents == null) return;
+            if (playerEvents != null)
+            {
+                playerEvents.OnJump.AddListener(OnJump);
+                playerEvents.OnWallCling.AddListener(OnWallCling);
+                playerEvents.OnStateChanged.AddListener(OnStateChanged);
+            }
 
-            playerEvents.OnJump.AddListener(OnJump);
-            playerEvents.OnWallCling.AddListener(OnWallCling);
-            playerEvents.OnStateChanged.AddListener(OnStateChanged);
+            if (touchInputHandler != null)
+            {
+                touchInputHandler.OnSwipeLeft.AddListener(OnSwipeLeftRight);
+                touchInputHandler.OnSwipeRight.AddListener(OnSwipeLeftRight);
+            }
         }
 
         private void OnDisable()
         {
-            if (playerEvents == null) return;
+            if (playerEvents != null)
+            {
+                playerEvents.OnJump.RemoveListener(OnJump);
+                playerEvents.OnWallCling.RemoveListener(OnWallCling);
+                playerEvents.OnStateChanged.RemoveListener(OnStateChanged);
+            }
 
-            playerEvents.OnJump.RemoveListener(OnJump);
-            playerEvents.OnWallCling.RemoveListener(OnWallCling);
-            playerEvents.OnStateChanged.RemoveListener(OnStateChanged);
+            if (touchInputHandler != null)
+            {
+                touchInputHandler.OnSwipeLeft.RemoveListener(OnSwipeLeftRight);
+                touchInputHandler.OnSwipeRight.RemoveListener(OnSwipeLeftRight);
+            }
         }
 
         private void Update()
@@ -102,6 +122,13 @@ namespace Gameplay.Audio
         private void OnWallCling(Vector2 position)
         {
             PlayWallScratch();
+        }
+
+        private void OnSwipeLeftRight()
+        {
+            if (jumpClip == null || pitchedAudioSource == null) return;
+            pitchedAudioSource.pitch = swipePitch;
+            pitchedAudioSource.PlayOneShot(jumpClip, VolumeManager.GetSFXVolume());
         }
 
         private void OnStateChanged(PlayerState newState)
@@ -136,11 +163,6 @@ namespace Gameplay.Audio
         public void PlayWallScratch()
         {
             PlayClip(wallScratchClip);
-        }
-
-        public void PlayFootstepAmethyst()
-        {
-            PlayRandomClip(stepsAmethyst, footstepVolume);
         }
 
         public void PlayFootstepBurningRock()
