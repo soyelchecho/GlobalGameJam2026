@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kamaina - Global Game Jam 2026</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #14141f;
+      --border: #2a2a3a;
+      --text: #e8e8f0;
+      --text-muted: #8888aa;
+      --accent: #ff6b35;
+      --accent-glow: rgba(255, 107, 53, 0.3);
+      /* Safe area insets for notched phones */
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      /* Optional background image — uncomment and set your image */
+      /* background-image: url('assets/bg.jpg'); */
+      /* background-size: cover; */
+      /* background-attachment: scroll; */
+      /* background-position: center; */
+    }
+
+    /* ========== HERO ========== */
+    .hero {
+      text-align: center;
+      padding: calc(3rem + var(--safe-top)) 1rem 2rem;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--accent), #ffaa55);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-top: 0.25rem;
+    }
+
+    /* ========== SECTIONS ========== */
+    section {
+      padding: 2rem 1rem;
+    }
+    section h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      text-align: center;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ========== MEDIA — horizontal scroll on mobile ========== */
+    .media-scroll {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 1rem 1rem;
+      /* Hide scrollbar but keep scroll */
+      scrollbar-width: none;
+    }
+    .media-scroll::-webkit-scrollbar { display: none; }
+
+    .media-item {
+      flex: 0 0 75vw;
+      max-width: 300px;
+      aspect-ratio: 9 / 16;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      scroll-snap-align: center;
+    }
+    .media-item img,
+    .media-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ========== CREDITS — stacked on mobile ========== */
+    .credits-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      text-align: center;
+    }
+    .credit-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .credit-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+    }
+    .credit-card span {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      display: block;
+    }
+    .credit-card a {
+      color: var(--accent);
+      font-size: 0.8rem;
+      text-decoration: none;
+      margin-top: 0.35rem;
+      display: inline-block;
+    }
+    .credit-card a:active { text-decoration: underline; }
+    .department-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .department-label:first-child { margin-top: 0; }
+
+    /* ========== DOWNLOAD ========== */
+    .download {
+      text-align: center;
+    }
+    /* QR hidden on mobile — they're already on the phone */
+    .qr-container {
+      display: none;
+    }
+    .download p.qr-hint {
+      display: none;
+    }
+    .download-btn {
+      display: block;
+      margin: 0.75rem 1rem 0;
+      padding: 1rem;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border-radius: 12px;
+      text-align: center;
+      transition: box-shadow 0.2s;
+      /* Minimum touch target 48px */
+      min-height: 48px;
+    }
+    .download-btn:active {
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* ========== MUSIC TOGGLE ========== */
+    .music-toggle {
+      position: fixed;
+      top: calc(1rem + var(--safe-top));
+      right: calc(1rem + var(--safe-right));
+      z-index: 100;
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .music-toggle:active {
+      background: var(--border);
+    }
+
+    /* ========== FOOTER ========== */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem calc(1.5rem + var(--safe-bottom));
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ==========================================================
+       TABLET+ (min 600px)
+       ========================================================== */
+    @media (min-width: 600px) {
+      .hero { padding: 4rem 1.5rem 2.5rem; }
+      .hero h1 { font-size: 3.5rem; }
+
+      section { padding: 2.5rem 1.5rem; max-width: 720px; margin: 0 auto; }
+
+      /* Grid instead of scroll */
+      .media-scroll {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        overflow-x: visible;
+        padding: 0;
+        justify-items: center;
+      }
+      .media-item {
+        flex: none;
+        max-width: 300px;
+        width: 100%;
+      }
+
+      .credits-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .download-btn {
+        display: inline-block;
+        margin: 0.75rem auto 0;
+        padding: 0.75rem 2.5rem;
+        width: auto;
+      }
+    }
+
+    /* ==========================================================
+       DESKTOP (min 900px) — show QR
+       ========================================================== */
+    @media (min-width: 900px) {
+      .hero h1 { font-size: 4.5rem; }
+      .hero { padding: 5rem 2rem 3rem; }
+
+      section { max-width: 960px; padding: 3rem 2rem; }
+      section h2 { font-size: 1.5rem; }
+
+      .media-scroll { grid-template-columns: repeat(3, 1fr); }
+
+      .credits-grid { grid-template-columns: repeat(4, 1fr); }
+
+      /* Show QR on desktop */
+      .qr-container {
+        display: inline-block;
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      .qr-container img {
+        width: 200px;
+        height: 200px;
+        display: block;
+      }
+      .download p.qr-hint {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      footer { max-width: 960px; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BACKGROUND MUSIC -->
+  <audio id="bgMusic" loop preload="auto" autoplay>
+    <source src="assets/ggjMainTheme.mp3" type="audio/mpeg">
+    <source src="assets/ggjMainTheme.wav" type="audio/wav">
+  </audio>
+
+  <!-- MUSIC TOGGLE — fixed top-right corner -->
+  <button class="music-toggle" id="musicToggle" aria-label="Toggle music">
+    <svg id="iconSoundOn" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+    </svg>
+    <svg id="iconSoundOff" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <line x1="23" y1="9" x2="17" y2="15"/>
+      <line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>
+  </button>
+
+  <!-- HERO -->
+  <header class="hero">
+    <h1>Kamaina</h1>
+    <p>Global Game Jam 2026</p>
+  </header>
+
+  <!-- GALLERY — swipeable on mobile, grid on tablet+ -->
+  <section>
+    <h2>Gallery</h2>
+    <div class="media-scroll">
+      <div class="media-item">
+        <img src="assets/screenshot1.png" alt="Screenshot 1">
+      </div>
+      <div class="media-item">
+        <img src="assets/screenshot2.png" alt="Screenshot 2">
+      </div>
+      <div class="media-item">
+        <img src="assets/screenshot3.png" alt="Screenshot 3">
+      </div>
+      <div class="media-item">
+        <img src="assets/screenshot4.png" alt="Screenshot 4">
+      </div>
+      <div class="media-item">
+        <video src="assets/gameplay1.mp4" autoplay muted loop playsinline></video>
+      </div>
+      <div class="media-item">
+        <video src="assets/gameplay2.mp4" autoplay muted loop playsinline></video>
+      </div>
+    </div>
+  </section>
+
+  <!-- CREDITS -->
+  <section>
+    <h2>Credits</h2>
+    <!-- Art -->
+    <p class="department-label">Art</p>
+    <div class="credits-grid">
+      <div class="credit-card">
+        <h3>Sofia Montoya</h3>
+        <span>Animations</span>
+        <a href="#" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+      </div>
+      <div class="credit-card">
+        <h3>David Ballesteros</h3>
+        <span>Character Design</span>
+        <a href="#" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+      </div>
+    </div>
+
+    <!-- Sound -->
+    <p class="department-label">Sound</p>
+    <div class="credits-grid">
+      <div class="credit-card">
+        <h3>Ivan Ortiz</h3>
+        <span>Sound, Foley &amp; Songs</span>
+        <a href="#" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+      </div>
+    </div>
+
+    <!-- Dev -->
+    <p class="department-label">Dev</p>
+    <div class="credits-grid">
+      <div class="credit-card">
+        <h3>Sergio Rojas</h3>
+        <span>Programmer</span>
+        <a href="#" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+      </div>
+      <div class="credit-card">
+        <h3>Nicolas Macias</h3>
+        <span>Programmer</span>
+        <a href="#" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section class="download">
+    <h2>Download</h2>
+    <!-- QR only visible on desktop (people scanning from a computer screen) -->
+    <div class="qr-container">
+      <img src="assets/qr.png" alt="QR Code to download">
+    </div>
+    <p class="qr-hint">Scan to download on your phone</p>
+    <!-- Direct download — update URL after creating a GitHub Release -->
+    <a class="download-btn" href="https://github.com/soyelchecho/GlobalGameJam2026/releases/latest/download/kamaina.apk">
+      Download APK
+    </a>
+  </section>
+
+  <footer>
+    Kamaina &mdash; Global Game Jam 2026
+  </footer>
+
+  <script>
+    const music = document.getElementById('bgMusic');
+    const btn = document.getElementById('musicToggle');
+    const iconOn = document.getElementById('iconSoundOn');
+    const iconOff = document.getElementById('iconSoundOff');
+    let playing = false;
+
+    function updateIcon() {
+      iconOn.style.display = playing ? '' : 'none';
+      iconOff.style.display = playing ? 'none' : '';
+    }
+
+    // Try autoplay — browsers may block it, so detect and sync icon
+    music.play().then(function () {
+      playing = true;
+      updateIcon();
+    }).catch(function () {
+      // Autoplay blocked — start on first user interaction instead
+      playing = false;
+      updateIcon();
+      document.addEventListener('click', function startMusic() {
+        music.play();
+        playing = true;
+        updateIcon();
+        document.removeEventListener('click', startMusic);
+      }, { once: true });
+    });
+
+    btn.addEventListener('click', function () {
+      if (playing) {
+        music.pause();
+      } else {
+        music.play();
+      }
+      playing = !playing;
+      updateIcon();
+    });
+  </script>
+
+</body>
+</html>
