@@ -237,8 +237,13 @@
       }
 
       .credits-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .credit-card {
+        width: auto;
+        min-width: 180px;
       }
 
       .download-btn {
@@ -261,7 +266,7 @@
 
       .media-scroll { grid-template-columns: repeat(3, 1fr); }
 
-      .credits-grid { grid-template-columns: repeat(4, 1fr); }
+      .credit-card { min-width: 200px; }
 
       /* Show QR on desktop */
       .qr-container {
