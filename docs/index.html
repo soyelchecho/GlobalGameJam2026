@@ -17,7 +17,6 @@
       --text-muted: #8888aa;
       --accent: #ff6b35;
       --accent-glow: rgba(255, 107, 53, 0.3);
-      /* Safe area insets for notched phones */
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --safe-left: env(safe-area-inset-left, 0px);
@@ -33,17 +32,27 @@
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
-      /* Optional background image — uncomment and set your image */
-      /* background-image: url('assets/bg.jpg'); */
-      /* background-size: cover; */
-      /* background-attachment: scroll; */
-      /* background-position: center; */
     }
 
     /* ========== HERO ========== */
     .hero {
       text-align: center;
       padding: calc(3rem + var(--safe-top)) 1rem 2rem;
+    }
+    .hero-logo {
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 1rem;
+      border-radius: 24px;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .hero-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
     .hero h1 {
       font-size: 2.5rem;
@@ -58,6 +67,40 @@
       color: var(--text-muted);
       font-size: 1rem;
       margin-top: 0.25rem;
+    }
+    .hero-links {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .hero-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: box-shadow 0.2s;
+      min-height: 44px;
+    }
+    .hero-link--primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .hero-link--primary:active {
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .hero-link--secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .hero-link--secondary:active {
+      background: var(--border);
     }
 
     /* ========== SECTIONS ========== */
@@ -74,7 +117,7 @@
       letter-spacing: 0.05em;
     }
 
-    /* ========== MEDIA — horizontal scroll on mobile ========== */
+    /* ========== GAMEPLAY VIDEOS — horizontal scroll on mobile ========== */
     .media-scroll {
       display: flex;
       gap: 0.75rem;
@@ -82,7 +125,6 @@
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       padding: 0 1rem 1rem;
-      /* Hide scrollbar but keep scroll */
       scrollbar-width: none;
     }
     .media-scroll::-webkit-scrollbar { display: none; }
@@ -105,7 +147,55 @@
       display: block;
     }
 
-    /* ========== CREDITS — stacked on mobile ========== */
+    /* ========== LEVEL MAPS — tall scrollable images ========== */
+    .maps-scroll {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 1rem 1rem;
+      scrollbar-width: none;
+    }
+    .maps-scroll::-webkit-scrollbar { display: none; }
+
+    .map-item {
+      flex: 0 0 70vw;
+      max-width: 280px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      scroll-snap-align: center;
+    }
+    .map-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* ========== TEAM PHOTOS ========== */
+    .team-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 0;
+    }
+    .team-photo {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      aspect-ratio: 16 / 9;
+    }
+    .team-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ========== CREDITS ========== */
     .credits-grid {
       display: flex;
       flex-direction: column;
@@ -152,7 +242,6 @@
     .download {
       text-align: center;
     }
-    /* QR hidden on mobile — they're already on the phone */
     .qr-container {
       display: none;
     }
@@ -171,7 +260,6 @@
       border-radius: 12px;
       text-align: center;
       transition: box-shadow 0.2s;
-      /* Minimum touch target 48px */
       min-height: 48px;
     }
     .download-btn:active {
@@ -217,14 +305,14 @@
        ========================================================== */
     @media (min-width: 600px) {
       .hero { padding: 4rem 1.5rem 2.5rem; }
+      .hero-logo { width: 180px; height: 180px; }
       .hero h1 { font-size: 3.5rem; }
 
       section { padding: 2.5rem 1.5rem; max-width: 720px; margin: 0 auto; }
 
-      /* Grid instead of scroll */
       .media-scroll {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
         overflow-x: visible;
         padding: 0;
@@ -232,8 +320,26 @@
       }
       .media-item {
         flex: none;
-        max-width: 300px;
+        max-width: 220px;
         width: 100%;
+      }
+
+      .maps-scroll {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        overflow-x: visible;
+        padding: 0;
+        justify-items: center;
+      }
+      .map-item {
+        flex: none;
+        max-width: 220px;
+        width: 100%;
+      }
+
+      .team-photo {
+        max-width: 100%;
       }
 
       .credits-grid {
@@ -255,20 +361,28 @@
     }
 
     /* ==========================================================
-       DESKTOP (min 900px) — show QR
+       DESKTOP (min 900px)
        ========================================================== */
     @media (min-width: 900px) {
       .hero h1 { font-size: 4.5rem; }
       .hero { padding: 5rem 2rem 3rem; }
+      .hero-logo { width: 200px; height: 200px; }
 
       section { max-width: 960px; padding: 3rem 2rem; }
       section h2 { font-size: 1.5rem; }
 
-      .media-scroll { grid-template-columns: repeat(3, 1fr); }
+      .media-item { max-width: 280px; }
+
+      .maps-scroll { gap: 1.5rem; }
+      .map-item { max-width: 280px; }
+
+      .team-grid { gap: 1.25rem; }
+      .team-photo {
+        max-width: 100%;
+      }
 
       .credit-card { min-width: 200px; }
 
-      /* Show QR on desktop */
       .qr-container {
         display: inline-block;
         background: #fff;
@@ -299,7 +413,7 @@
     <source src="assets/ggjMainTheme.wav" type="audio/wav">
   </audio>
 
-  <!-- MUSIC TOGGLE — fixed top-right corner -->
+  <!-- MUSIC TOGGLE -->
   <button class="music-toggle" id="musicToggle" aria-label="Toggle music">
     <svg id="iconSoundOn" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
@@ -315,31 +429,68 @@
 
   <!-- HERO -->
   <header class="hero">
+    <!-- Replace src with your square logo image -->
+    <div class="hero-logo">
+      <img src="assets/logo.png" alt="Kamaina logo">
+    </div>
     <h1>Kamaina</h1>
     <p>Global Game Jam 2026</p>
+    <div class="hero-links">
+      <a class="hero-link hero-link--primary" href="https://globalgamejam.org/games/2026/kamaina-7" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        GGJ Page
+      </a>
+      <a class="hero-link hero-link--secondary" href="https://github.com/soyelchecho/GlobalGameJam2026/releases/latest/download/kamaina.apk">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download APK
+      </a>
+    </div>
   </header>
 
-  <!-- GALLERY — swipeable on mobile, grid on tablet+ -->
+  <!-- TEAM -->
   <section>
-    <h2>Gallery</h2>
+    <h2>The Team</h2>
+    <div class="team-grid">
+      <div class="team-photo">
+        <img src="assets/group1.jpg" alt="Team photo 1" loading="lazy">
+      </div>
+      <div class="team-photo">
+        <img src="assets/group2.jpg" alt="Team photo 2" loading="lazy">
+      </div>
+      <div class="team-photo">
+        <img src="assets/group3.jpg" alt="Team photo 3" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- LEVEL MAPS -->
+  <section>
+    <h2>Level Maps</h2>
+    <div class="maps-scroll">
+      <div class="map-item">
+        <img src="assets/map1.png" alt="Level 1 Map" loading="lazy">
+      </div>
+      <div class="map-item">
+        <img src="assets/map2.png" alt="Level 2 Map" loading="lazy">
+      </div>
+      <div class="map-item">
+        <img src="assets/map3.png" alt="Level 3 Map" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- GAMEPLAY -->
+  <section>
+    <h2>Gameplay</h2>
     <div class="media-scroll">
-      <div class="media-item">
-        <img src="assets/screenshot1.png" alt="Screenshot 1">
-      </div>
-      <div class="media-item">
-        <img src="assets/screenshot2.png" alt="Screenshot 2">
-      </div>
-      <div class="media-item">
-        <img src="assets/screenshot3.png" alt="Screenshot 3">
-      </div>
-      <div class="media-item">
-        <img src="assets/screenshot4.png" alt="Screenshot 4">
-      </div>
       <div class="media-item">
         <video src="assets/gameplay1.mp4" autoplay muted loop playsinline></video>
       </div>
       <div class="media-item">
         <video src="assets/gameplay2.mp4" autoplay muted loop playsinline></video>
+      </div>
+      <div class="media-item">
+        <video src="assets/gameplay3.mp4" autoplay muted loop playsinline></video>
       </div>
     </div>
   </section>
@@ -353,12 +504,12 @@
       <div class="credit-card">
         <h3>Sofia Montoya</h3>
         <span>Animations</span>
-        <a href="#" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+        <a href="https://samontoya498.wixsite.com/sofmonten" target="_blank" rel="noopener" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
       </div>
       <div class="credit-card">
         <h3>David Ballesteros</h3>
         <span>Character Design</span>
-        <a href="#" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+        <a href="https://davidballev.weebly.com/" target="_blank" rel="noopener" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
       </div>
     </div>
 
@@ -368,7 +519,7 @@
       <div class="credit-card">
         <h3>Ivan Ortiz</h3>
         <span>Sound, Foley &amp; Songs</span>
-        <a href="#" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+        <a href="https://globalgamejam.org/users/ivan-ortiz-tk" target="_blank" rel="noopener" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
       </div>
     </div>
 
@@ -378,12 +529,12 @@
       <div class="credit-card">
         <h3>Sergio Rojas</h3>
         <span>Programmer</span>
-        <a href="#" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+        <a href="https://programaconchecho.webnode.com.co/" target="_blank" rel="noopener" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
       </div>
       <div class="credit-card">
         <h3>Nicolas Macias</h3>
         <span>Programmer</span>
-        <a href="#" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+        <a href="https://github.com/zeittgeist" target="_blank" rel="noopener" aria-label="Portfolio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
       </div>
     </div>
   </section>
@@ -391,12 +542,10 @@
   <!-- DOWNLOAD -->
   <section class="download">
     <h2>Download</h2>
-    <!-- QR only visible on desktop (people scanning from a computer screen) -->
     <div class="qr-container">
       <img src="assets/qr.png" alt="QR Code to download">
     </div>
     <p class="qr-hint">Scan to download on your phone</p>
-    <!-- Direct download — update URL after creating a GitHub Release -->
     <a class="download-btn" href="https://github.com/soyelchecho/GlobalGameJam2026/releases/latest/download/kamaina.apk">
       Download APK
     </a>
@@ -418,12 +567,10 @@
       iconOff.style.display = playing ? 'none' : '';
     }
 
-    // Try autoplay — browsers may block it, so detect and sync icon
     music.play().then(function () {
       playing = true;
       updateIcon();
     }).catch(function () {
-      // Autoplay blocked — start on first user interaction instead
       playing = false;
       updateIcon();
       document.addEventListener('click', function startMusic() {
