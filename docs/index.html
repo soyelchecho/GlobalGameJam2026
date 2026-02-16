@@ -291,6 +291,42 @@
       background: var(--border);
     }
 
+    /* ========== LIGHTBOX ========== */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+      cursor: zoom-out;
+      padding: 1rem;
+    }
+    .lightbox.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .lightbox img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      transform: scale(0.92);
+      transition: transform 0.25s;
+    }
+    .lightbox.active img {
+      transform: scale(1);
+    }
+
+    .team-photo,
+    .map-item {
+      cursor: zoom-in;
+    }
+
     /* ========== FOOTER ========== */
     footer {
       text-align: center;
@@ -338,8 +374,13 @@
         width: 100%;
       }
 
+      .team-grid {
+        flex-direction: row;
+      }
       .team-photo {
-        max-width: 100%;
+        flex: 1 1 0;
+        aspect-ratio: auto;
+        max-height: 280px;
       }
 
       .credits-grid {
@@ -378,7 +419,7 @@
 
       .team-grid { gap: 1.25rem; }
       .team-photo {
-        max-width: 100%;
+        max-height: 320px;
       }
 
       .credit-card { min-width: 200px; }
@@ -551,6 +592,11 @@
     </a>
   </section>
 
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <img id="lightboxImg" src="" alt="">
+  </div>
+
   <footer>
     Kamaina &mdash; Global Game Jam 2026
   </footer>
@@ -589,6 +635,22 @@
       }
       playing = !playing;
       updateIcon();
+    });
+
+    // Lightbox
+    var lightbox = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightboxImg');
+
+    document.querySelectorAll('.team-photo img, .map-item img').forEach(function (img) {
+      img.addEventListener('click', function () {
+        lightboxImg.src = this.src;
+        lightboxImg.alt = this.alt;
+        lightbox.classList.add('active');
+      });
+    });
+
+    lightbox.addEventListener('click', function () {
+      lightbox.classList.remove('active');
     });
   </script>
 
