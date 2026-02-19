@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using Gameplay.Player;
 using Gameplay.Masks;
 using Gameplay.UI;
@@ -191,20 +190,9 @@ namespace Gameplay.Hazards
         {
             yield return new WaitForSeconds(reloadDelay);
 
-            // Show death panel
+            // Show death panel — navigation handled by buttons on the panel
             if (UIManager.Instance != null)
-            {
                 UIManager.Instance.ShowDeathPanel();
-
-                // Wait until panel is dismissed
-                while (UIManager.Instance.CurrentPanel == ActivePanel.Death)
-                {
-                    yield return null;
-                }
-            }
-
-            // Reload scene
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         /// <summary>

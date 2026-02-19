@@ -27,7 +27,18 @@ namespace Gameplay.UI
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj != null)
                 player = playerObj.transform;
+
+            if (UIManager.Instance != null)
+                UIManager.Instance.OnDeathShown.AddListener(Hide);
         }
+
+        private void OnDestroy()
+        {
+            if (UIManager.Instance != null)
+                UIManager.Instance.OnDeathShown.RemoveListener(Hide);
+        }
+
+        private void Hide() => gameObject.SetActive(false);
 
         private void Update()
         {

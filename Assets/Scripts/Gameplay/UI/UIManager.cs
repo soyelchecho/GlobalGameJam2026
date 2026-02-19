@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using Gameplay.Audio;
 
 namespace Gameplay.UI
@@ -30,11 +31,13 @@ namespace Gameplay.UI
         [Header("Lava Warning")]
         [SerializeField] private float lavaWarningDuration = 2f;
 
+        [Header("Scene Navigation")]
+        [SerializeField] private string mainMenuSceneName = "MainMenu";
+
         [Header("Events")]
         public UnityEvent OnMaskInfoShown;
         public UnityEvent OnMaskInfoDismissed;
         public UnityEvent OnDeathShown;
-        public UnityEvent OnDeathDismissed;
         public UnityEvent OnNextLevelShown;
         public UnityEvent OnNextLevelDismissed;
         public UnityEvent OnLavaWarningShown;
@@ -60,13 +63,8 @@ namespace Gameplay.UI
 
         private void Update()
         {
-            if (currentPanel == ActivePanel.MaskInfo || currentPanel == ActivePanel.Death)
-            {
-                if (DetectTapOrSwipe())
-                {
-                    DismissCurrentPanel();
-                }
-            }
+            if (currentPanel == ActivePanel.MaskInfo && DetectTapOrSwipe())
+                HideMaskInfoPanel();
         }
 
         private bool DetectTapOrSwipe()
@@ -145,19 +143,34 @@ namespace Gameplay.UI
             OnDeathShown?.Invoke();
         }
 
-        public void HideDeathPanel()
+        /// <summary>
+        /// Restart the current level. Wire to a Restart button on the death panel.
+        /// </summary>
+        public void RestartRun()
         {
-            if (deathPanel == null) return;
-            if (currentPanel != ActivePanel.Death) return;
-
-            currentPanel = ActivePanel.None;
-            deathPanel.SetActive(false);
-
-            // Restore music volume
+            Time.timeScale = 1f;
             if (AudioManager.Instance != null)
                 AudioManager.Instance.RestoreMusicVolume();
 
-            OnDeathDismissed?.Invoke();
+            if (LoadingScreen.Instance != null)
+                LoadingScreen.Instance.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            else
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        /// <summary>
+        /// Return to main menu. Wire to a Main Menu button on the death panel.
+        /// </summary>
+        public void GoToMainMenu()
+        {
+            Time.timeScale = 1f;
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.RestoreMusicVolume();
+
+            if (LoadingScreen.Instance != null)
+                LoadingScreen.Instance.LoadScene(mainMenuSceneName);
+            else
+                SceneManager.LoadScene(mainMenuSceneName);
         }
 
         #endregion
@@ -222,17 +235,5 @@ namespace Gameplay.UI
 
         #endregion
 
-        private void DismissCurrentPanel()
-        {
-            switch (currentPanel)
-            {
-                case ActivePanel.MaskInfo:
-                    HideMaskInfoPanel();
-                    break;
-                case ActivePanel.Death:
-                    HideDeathPanel();
-                    break;
-            }
-        }
     }
 }
