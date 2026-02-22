@@ -49,7 +49,6 @@ namespace GameEditor
             gearImg.raycastTarget = true;
             Button gearBtn = gearGO.AddComponent<Button>();
 
-            // Gear icon text (placeholder until sprite is assigned)
             GameObject gearLabel = new GameObject("Icon");
             gearLabel.transform.SetParent(gearGO.transform, false);
             RectTransform gearLabelRect = gearLabel.AddComponent<RectTransform>();
@@ -58,7 +57,7 @@ namespace GameEditor
             gearLabelRect.offsetMin = Vector2.zero;
             gearLabelRect.offsetMax = Vector2.zero;
             Text gearText = gearLabel.AddComponent<Text>();
-            gearText.text = "\u2699"; // gear unicode
+            gearText.text = "\u2699";
             gearText.fontSize = 50;
             gearText.alignment = TextAnchor.MiddleCenter;
             gearText.color = Color.black;
@@ -72,10 +71,12 @@ namespace GameEditor
             SetupFullscreen(overlayGO);
             Image overlayImg = overlayGO.AddComponent<Image>();
             overlayImg.color = new Color(0, 0, 0, 0.7f);
-            overlayImg.raycastTarget = true; // blocks input to game
+            overlayImg.raycastTarget = true;
 
             // =============================================
-            // PAUSE PANEL (centered)
+            // PAUSE PANEL
+            // Assign your background sprite directly to the PausePanel Image in the Inspector.
+            // All child elements are freely positionable — drag them in the Scene view.
             // =============================================
             GameObject panelGO = new GameObject("PausePanel");
             panelGO.transform.SetParent(canvasGO.transform, false);
@@ -86,12 +87,11 @@ namespace GameEditor
             panelRect.sizeDelta = new Vector2(700, 1100);
             panelRect.anchoredPosition = Vector2.zero;
 
+            // Panel background Image — assign your sprite here
             Image panelImg = panelGO.AddComponent<Image>();
             panelImg.color = new Color(0.12f, 0.08f, 0.18f, 0.95f);
 
-            // =============================================
-            // CLOSE BUTTON (X) - top right of panel
-            // =============================================
+            // ---- Close button (X) — top-right of panel ----
             GameObject closeGO = new GameObject("CloseButton");
             closeGO.transform.SetParent(panelGO.transform, false);
             RectTransform closeRect = closeGO.AddComponent<RectTransform>();
@@ -100,13 +100,10 @@ namespace GameEditor
             closeRect.pivot = new Vector2(1f, 1f);
             closeRect.anchoredPosition = new Vector2(-15, -15);
             closeRect.sizeDelta = new Vector2(70, 70);
-
             Image closeImg = closeGO.AddComponent<Image>();
             closeImg.color = new Color(0.8f, 0.2f, 0.2f, 1f);
             closeImg.raycastTarget = true;
             Button closeBtn = closeGO.AddComponent<Button>();
-
-            // X text
             GameObject closeLabel = new GameObject("XLabel");
             closeLabel.transform.SetParent(closeGO.transform, false);
             RectTransform closeLabelRect = closeLabel.AddComponent<RectTransform>();
@@ -122,45 +119,18 @@ namespace GameEditor
             closeText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             closeText.fontStyle = FontStyle.Bold;
 
-            // =============================================
-            // PANEL CONTENT (vertical layout)
-            // =============================================
-            GameObject contentGO = new GameObject("Content");
-            contentGO.transform.SetParent(panelGO.transform, false);
-            RectTransform contentRect = contentGO.AddComponent<RectTransform>();
-            contentRect.anchorMin = new Vector2(0.05f, 0.05f);
-            contentRect.anchorMax = new Vector2(0.95f, 0.88f);
-            contentRect.offsetMin = Vector2.zero;
-            contentRect.offsetMax = Vector2.zero;
+            // ---- Title — drag freely in Scene view ----
+            CreatePanelLabel(panelGO.transform, "TitleLabel", "PAUSA", 48, new Vector2(0, 430));
 
-            VerticalLayoutGroup contentLayout = contentGO.AddComponent<VerticalLayoutGroup>();
-            contentLayout.spacing = 35f;
-            contentLayout.childAlignment = TextAnchor.MiddleCenter;
-            contentLayout.childControlWidth = true;
-            contentLayout.childControlHeight = false;
-            contentLayout.childForceExpandWidth = true;
-            contentLayout.childForceExpandHeight = false;
-            contentLayout.padding = new RectOffset(30, 30, 10, 10);
+            // ---- Volume sliders — drag each group freely in Scene view ----
+            GameObject masterGroup = CreateFreeSliderGroup(panelGO.transform, "MasterVolume", "Volumen General", 600, 260);
+            GameObject musicGroup  = CreateFreeSliderGroup(panelGO.transform, "MusicVolume",  "Musica",          600, 110);
+            GameObject sfxGroup    = CreateFreeSliderGroup(panelGO.transform, "SFXVolume",    "Efectos",         600, -40);
 
-            // Title
-            CreateLabel(contentGO.transform, "TitleLabel", "PAUSA", 48);
-
-            // Volume sliders
-            GameObject masterSlider = CreateSliderRow(contentGO.transform, "MasterVolume", "Volumen General");
-            GameObject musicSlider = CreateSliderRow(contentGO.transform, "MusicVolume", "Musica");
-            GameObject sfxSlider = CreateSliderRow(contentGO.transform, "SFXVolume", "Efectos");
-
-            // Spacer
-            GameObject spacer = new GameObject("Spacer");
-            spacer.transform.SetParent(contentGO.transform, false);
-            spacer.AddComponent<RectTransform>();
-            LayoutElement spacerLayout = spacer.AddComponent<LayoutElement>();
-            spacerLayout.preferredHeight = 20;
-
-            // Navigation buttons
-            GameObject resumeBtn = CreateMenuButton(contentGO.transform, "Btn_Reanudar", "REANUDAR", new Color(0.2f, 0.7f, 0.3f, 1f));
-            GameObject levelSelectBtn = CreateMenuButton(contentGO.transform, "Btn_NivelSelect", "SELECCION DE NIVEL", new Color(0.3f, 0.5f, 0.8f, 1f));
-            GameObject mainMenuBtn = CreateMenuButton(contentGO.transform, "Btn_MenuPrincipal", "MENU PRINCIPAL", new Color(0.6f, 0.3f, 0.7f, 1f));
+            // ---- Navigation buttons — drag freely in Scene view ----
+            GameObject resumeBtn      = CreatePanelButton(panelGO.transform, "Btn_Reanudar",      "REANUDAR",           new Color(0.2f, 0.7f, 0.3f, 1f), new Vector2(0, -200));
+            GameObject levelSelectBtn = CreatePanelButton(panelGO.transform, "Btn_NivelSelect",   "SELECCION DE NIVEL", new Color(0.3f, 0.5f, 0.8f, 1f), new Vector2(0, -310));
+            GameObject mainMenuBtn    = CreatePanelButton(panelGO.transform, "Btn_MenuPrincipal", "MENU PRINCIPAL",     new Color(0.6f, 0.3f, 0.7f, 1f), new Vector2(0, -420));
 
             // Hide panel initially
             overlayGO.SetActive(false);
@@ -172,26 +142,23 @@ namespace GameEditor
             PauseMenu pauseMenu = canvasGO.AddComponent<PauseMenu>();
 
             SerializedObject so = new SerializedObject(pauseMenu);
-            so.FindProperty("gearButton").objectReferenceValue = gearGO;
-            so.FindProperty("pausePanel").objectReferenceValue = panelGO;
-            so.FindProperty("overlay").objectReferenceValue = overlayGO;
-            so.FindProperty("gearBtn").objectReferenceValue = gearBtn;
-            so.FindProperty("closeBtn").objectReferenceValue = closeBtn;
-            so.FindProperty("resumeBtn").objectReferenceValue = resumeBtn.GetComponent<Button>();
+            so.FindProperty("gearButton").objectReferenceValue  = gearGO;
+            so.FindProperty("pausePanel").objectReferenceValue  = panelGO;
+            so.FindProperty("overlay").objectReferenceValue     = overlayGO;
+            so.FindProperty("gearBtn").objectReferenceValue     = gearBtn;
+            so.FindProperty("closeBtn").objectReferenceValue    = closeBtn;
+            so.FindProperty("resumeBtn").objectReferenceValue      = resumeBtn.GetComponent<Button>();
             so.FindProperty("levelSelectBtn").objectReferenceValue = levelSelectBtn.GetComponent<Button>();
-            so.FindProperty("mainMenuBtn").objectReferenceValue = mainMenuBtn.GetComponent<Button>();
-            so.FindProperty("masterVolumeSlider").objectReferenceValue = masterSlider.GetComponentInChildren<Slider>();
-            so.FindProperty("musicVolumeSlider").objectReferenceValue = musicSlider.GetComponentInChildren<Slider>();
-            so.FindProperty("sfxVolumeSlider").objectReferenceValue = sfxSlider.GetComponentInChildren<Slider>();
+            so.FindProperty("mainMenuBtn").objectReferenceValue    = mainMenuBtn.GetComponent<Button>();
+            so.FindProperty("masterVolumeSlider").objectReferenceValue = masterGroup.GetComponentInChildren<Slider>();
+            so.FindProperty("musicVolumeSlider").objectReferenceValue  = musicGroup.GetComponentInChildren<Slider>();
+            so.FindProperty("sfxVolumeSlider").objectReferenceValue    = sfxGroup.GetComponentInChildren<Slider>();
             so.ApplyModifiedProperties();
 
-            // Register undo
             Undo.RegisterCreatedObjectUndo(canvasGO, "Create Pause Menu");
-
-            // Select
             Selection.activeGameObject = canvasGO;
 
-            Debug.Log("[CreatePauseMenu] Pause Menu created! Assign gear sprite, configure scene names in PauseMenu component. Make it a prefab to reuse across levels.");
+            Debug.Log("[CreatePauseMenu] Created! All panel elements are freely positionable — drag them in Scene view. Assign the panel background sprite directly to PausePanel > Image in the Inspector.");
         }
 
         // =============================================
@@ -207,13 +174,17 @@ namespace GameEditor
             rect.offsetMax = Vector2.zero;
         }
 
-        private static GameObject CreateLabel(Transform parent, string name, string text, int fontSize)
+        /// <summary>Text label freely positionable inside the panel.</summary>
+        private static void CreatePanelLabel(Transform parent, string name, string text, int fontSize, Vector2 anchoredPos)
         {
             GameObject go = new GameObject(name);
             go.transform.SetParent(parent, false);
             RectTransform rect = go.AddComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot     = new Vector2(0.5f, 0.5f);
             rect.sizeDelta = new Vector2(600, fontSize + 20);
-
+            rect.anchoredPosition = anchoredPos;
             Text label = go.AddComponent<Text>();
             label.text = text;
             label.fontSize = fontSize;
@@ -222,19 +193,19 @@ namespace GameEditor
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             label.fontStyle = FontStyle.Bold;
             label.raycastTarget = false;
-
-            LayoutElement layout = go.AddComponent<LayoutElement>();
-            layout.preferredHeight = fontSize + 30;
-
-            return go;
         }
 
-        private static GameObject CreateMenuButton(Transform parent, string name, string text, Color bgColor)
+        /// <summary>Button freely positionable inside the panel.</summary>
+        private static GameObject CreatePanelButton(Transform parent, string name, string text, Color bgColor, Vector2 anchoredPos)
         {
             GameObject go = new GameObject(name);
             go.transform.SetParent(parent, false);
             RectTransform rect = go.AddComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot     = new Vector2(0.5f, 0.5f);
             rect.sizeDelta = new Vector2(500, 80);
+            rect.anchoredPosition = anchoredPos;
 
             Image img = go.AddComponent<Image>();
             img.color = bgColor;
@@ -243,10 +214,9 @@ namespace GameEditor
             Button btn = go.AddComponent<Button>();
             ColorBlock colors = btn.colors;
             colors.highlightedColor = new Color(bgColor.r + 0.15f, bgColor.g + 0.15f, bgColor.b + 0.15f, 1f);
-            colors.pressedColor = new Color(bgColor.r - 0.1f, bgColor.g - 0.1f, bgColor.b - 0.1f, 1f);
+            colors.pressedColor     = new Color(bgColor.r - 0.1f,  bgColor.g - 0.1f,  bgColor.b - 0.1f,  1f);
             btn.colors = colors;
 
-            // Button label
             GameObject labelGO = new GameObject("Label");
             labelGO.transform.SetParent(go.transform, false);
             RectTransform labelRect = labelGO.AddComponent<RectTransform>();
@@ -262,62 +232,51 @@ namespace GameEditor
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             label.fontStyle = FontStyle.Bold;
 
-            LayoutElement layout = go.AddComponent<LayoutElement>();
-            layout.preferredHeight = 80;
-
             return go;
         }
 
-        private static GameObject CreateSliderRow(Transform parent, string name, string labelText)
+        /// <summary>
+        /// Self-contained slider group (label + slider) with NO layout component.
+        /// Drag the whole group in Scene view to reposition it.
+        /// </summary>
+        private static GameObject CreateFreeSliderGroup(Transform parent, string name, string labelText, float width, float anchoredY)
         {
-            // Row container
-            GameObject row = new GameObject(name + "Row");
-            row.transform.SetParent(parent, false);
-            RectTransform rowRect = row.AddComponent<RectTransform>();
-            rowRect.sizeDelta = new Vector2(0, 70);
+            // ---- Container (move this in Scene view) ----
+            GameObject group = new GameObject(name + "Group");
+            group.transform.SetParent(parent, false);
+            RectTransform groupRect = group.AddComponent<RectTransform>();
+            groupRect.anchorMin = new Vector2(0.5f, 0.5f);
+            groupRect.anchorMax = new Vector2(0.5f, 0.5f);
+            groupRect.pivot     = new Vector2(0.5f, 0.5f);
+            groupRect.sizeDelta = new Vector2(width, 110);
+            groupRect.anchoredPosition = new Vector2(0, anchoredY);
 
-            VerticalLayoutGroup rowLayout = row.AddComponent<VerticalLayoutGroup>();
-            rowLayout.spacing = 5f;
-            rowLayout.childAlignment = TextAnchor.MiddleCenter;
-            rowLayout.childControlWidth = true;
-            rowLayout.childControlHeight = false;
-            rowLayout.childForceExpandWidth = true;
-            rowLayout.childForceExpandHeight = false;
-
-            LayoutElement rowLayoutEl = row.AddComponent<LayoutElement>();
-            rowLayoutEl.preferredHeight = 90;
-
-            // Label
+            // ---- Label (top half of group) ----
             GameObject labelGO = new GameObject("Label");
-            labelGO.transform.SetParent(row.transform, false);
+            labelGO.transform.SetParent(group.transform, false);
+            RectTransform labelRect = labelGO.AddComponent<RectTransform>();
+            labelRect.anchorMin = new Vector2(0, 0.55f);
+            labelRect.anchorMax = new Vector2(1, 1f);
+            labelRect.offsetMin = new Vector2(10, 0);
+            labelRect.offsetMax = new Vector2(-10, 0);
             Text label = labelGO.AddComponent<Text>();
             label.text = labelText;
-            label.fontSize = 26;
-            label.alignment = TextAnchor.MiddleCenter;
+            label.fontSize = 28;
+            label.alignment = TextAnchor.MiddleLeft;
             label.color = new Color(0.85f, 0.85f, 0.85f, 1f);
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             label.raycastTarget = false;
 
-            LayoutElement labelLayout = labelGO.AddComponent<LayoutElement>();
-            labelLayout.preferredHeight = 30;
-
-            // Slider
-            GameObject sliderGO = CreateDefaultSlider(row.transform, name + "Slider");
-
-            LayoutElement sliderLayout = sliderGO.AddComponent<LayoutElement>();
-            sliderLayout.preferredHeight = 40;
-
-            return row;
-        }
-
-        private static GameObject CreateDefaultSlider(Transform parent, string name)
-        {
-            GameObject sliderGO = new GameObject(name);
-            sliderGO.transform.SetParent(parent, false);
+            // ---- Slider root (bottom half of group) ----
+            GameObject sliderGO = new GameObject(name + "Slider");
+            sliderGO.transform.SetParent(group.transform, false);
             RectTransform sliderRect = sliderGO.AddComponent<RectTransform>();
-            sliderRect.sizeDelta = new Vector2(400, 40);
+            sliderRect.anchorMin = new Vector2(0, 0);
+            sliderRect.anchorMax = new Vector2(1, 0.5f);
+            sliderRect.offsetMin = new Vector2(10, 5);
+            sliderRect.offsetMax = new Vector2(-10, -5);
 
-            // Transparent image so slider receives raycasts
+            // Transparent image so the slider root receives raycasts
             Image sliderBgImg = sliderGO.AddComponent<Image>();
             sliderBgImg.color = new Color(0, 0, 0, 0);
 
@@ -327,7 +286,7 @@ namespace GameEditor
             slider.value = 0.75f;
             slider.wholeNumbers = false;
 
-            // Background
+            // Track background
             GameObject bg = new GameObject("Background");
             bg.transform.SetParent(sliderGO.transform, false);
             RectTransform bgRect = bg.AddComponent<RectTransform>();
@@ -339,7 +298,7 @@ namespace GameEditor
             bgImg.color = new Color(0.3f, 0.3f, 0.3f, 1f);
             bgImg.raycastTarget = false;
 
-            // Fill Area
+            // Fill area
             GameObject fillArea = new GameObject("Fill Area");
             fillArea.transform.SetParent(sliderGO.transform, false);
             RectTransform fillAreaRect = fillArea.AddComponent<RectTransform>();
@@ -359,7 +318,7 @@ namespace GameEditor
             fillImg.color = new Color(0.8f, 0.4f, 1f, 1f);
             fillImg.raycastTarget = false;
 
-            // Handle Slide Area
+            // Handle
             GameObject handleArea = new GameObject("Handle Slide Area");
             handleArea.transform.SetParent(sliderGO.transform, false);
             RectTransform handleAreaRect = handleArea.AddComponent<RectTransform>();
@@ -371,7 +330,7 @@ namespace GameEditor
             GameObject handle = new GameObject("Handle");
             handle.transform.SetParent(handleArea.transform, false);
             RectTransform handleRect = handle.AddComponent<RectTransform>();
-            handleRect.sizeDelta = new Vector2(30, 0);
+            handleRect.sizeDelta = new Vector2(40, 0);
             Image handleImg = handle.AddComponent<Image>();
             handleImg.color = Color.white;
 
@@ -379,7 +338,7 @@ namespace GameEditor
             slider.handleRect = handleRect;
             slider.targetGraphic = handleImg;
 
-            return sliderGO;
+            return group;
         }
     }
 }

@@ -24,8 +24,10 @@ namespace Gameplay.Temporal
         public UnityEvent OnEnterPresent;
 
         [Header("Timing")]
-        [Tooltip("If true, objects switch immediately. If false, call ApplyPastState()/ApplyPresentState() from animation events.")]
-        [SerializeField] private bool immediateSwitch = true;
+        [Tooltip("Switch to Past instantly when mask is equipped. Disable if you want to trigger the show via ApplyPastState() from an animation event.")]
+        [SerializeField] private bool immediateEnterSwitch = true;
+        [Tooltip("Switch back to Present instantly when mask is removed. Disable to allow an exit animation on pastObject — call ApplyPresentState() from the animation event at the end of it.")]
+        [SerializeField] private bool immediateExitSwitch = true;
 
         private Color[] originalColors;
         private SpriteRenderer[] pastSpriteRenderers;
@@ -63,20 +65,32 @@ namespace Gameplay.Temporal
         {
             pendingState = newState;
 
-            // Invoke events for animations
             if (newState == TimeState.Past)
             {
+                // Enter past: fire event, then switch immediately if configured
                 OnEnterPast?.Invoke();
+                if (immediateEnterSwitch)
+                    UpdateVisualState(TimeState.Past);
             }
             else
             {
-                OnEnterPresent?.Invoke();
-            }
+                // Enter present: show presentObject FIRST so there is no visual gap,
+                // then fire the exit event while pastObject is still active so its
+                // Animator can process the trigger and play the exit animation.
+                if (presentObject != null)
+                    presentObject.SetActive(true);
 
-            // If immediate switch, apply now. Otherwise wait for manual call.
-            if (immediateSwitch)
-            {
-                UpdateVisualState(newState);
+                OnEnterPresent?.Invoke();
+
+                // If immediateExitSwitch, hide pastObject now (no exit animation).
+                // If false, pastObject stays alive — call ApplyPresentState() from
+                // the animation event at the END of the exit animation to hide it.
+                if (immediateExitSwitch)
+                {
+                    if (pastObject != null)
+                        pastObject.SetActive(false);
+                    RestoreOriginalColors();
+                }
             }
         }
 

@@ -18,6 +18,12 @@ namespace Gameplay.UI
         [Tooltip("Sprite for the background")]
         [SerializeField] private Sprite backgroundSprite;
 
+        [Header("Options - Background")]
+        [Tooltip("Background image inside the options panel (assign your sprite here)")]
+        [SerializeField] private Image optionsBgImage;
+        [Tooltip("Sprite for the options panel background")]
+        [SerializeField] private Sprite optionsBgSprite;
+
         [Header("Panels")]
         [Tooltip("Main panel with the 4 buttons")]
         [SerializeField] private GameObject mainPanel;
@@ -64,6 +70,9 @@ namespace Gameplay.UI
             // Setup background
             if (backgroundImage != null && backgroundSprite != null)
                 backgroundImage.sprite = backgroundSprite;
+
+            if (optionsBgImage != null && optionsBgSprite != null)
+                optionsBgImage.sprite = optionsBgSprite;
 
             // Show main panel, hide others
             ShowMainPanel();
