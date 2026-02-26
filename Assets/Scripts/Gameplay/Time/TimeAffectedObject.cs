@@ -12,10 +12,6 @@ namespace Gameplay.Temporal
         [Tooltip("GameObject to show in Past time")]
         [SerializeField] private GameObject pastObject;
 
-        [Header("Visual Effect")]
-        [SerializeField] private bool applyPastTint = true;
-        [SerializeField] private Color pastTint = new Color(0.7f, 0.85f, 1f, 1f);
-
         [Header("Animation Events")]
         [Tooltip("Called when entering Past (mask equipped). Use for rebuild animations.")]
         public UnityEvent OnEnterPast;
@@ -29,23 +25,7 @@ namespace Gameplay.Temporal
         [Tooltip("Switch back to Present instantly when mask is removed. Disable to allow an exit animation on pastObject — call ApplyPresentState() from the animation event at the end of it.")]
         [SerializeField] private bool immediateExitSwitch = true;
 
-        private Color[] originalColors;
-        private SpriteRenderer[] pastSpriteRenderers;
         private TimeState pendingState;
-
-        private void Awake()
-        {
-            if (pastObject != null)
-            {
-                pastSpriteRenderers = pastObject.GetComponentsInChildren<SpriteRenderer>(true);
-                originalColors = new Color[pastSpriteRenderers.Length];
-
-                for (int i = 0; i < pastSpriteRenderers.Length; i++)
-                {
-                    originalColors[i] = pastSpriteRenderers[i].color;
-                }
-            }
-        }
 
         private void OnEnable()
         {
@@ -89,7 +69,6 @@ namespace Gameplay.Temporal
                 {
                     if (pastObject != null)
                         pastObject.SetActive(false);
-                    RestoreOriginalColors();
                 }
             }
         }
@@ -123,49 +102,10 @@ namespace Gameplay.Temporal
             bool isPast = state == TimeState.Past;
 
             if (presentObject != null)
-            {
                 presentObject.SetActive(!isPast);
-            }
 
             if (pastObject != null)
-            {
                 pastObject.SetActive(isPast);
-
-                if (isPast && applyPastTint)
-                {
-                    ApplyPastTint();
-                }
-                else if (!isPast)
-                {
-                    RestoreOriginalColors();
-                }
-            }
-        }
-
-        private void ApplyPastTint()
-        {
-            if (pastSpriteRenderers == null) return;
-
-            for (int i = 0; i < pastSpriteRenderers.Length; i++)
-            {
-                if (pastSpriteRenderers[i] != null)
-                {
-                    pastSpriteRenderers[i].color = originalColors[i] * pastTint;
-                }
-            }
-        }
-
-        private void RestoreOriginalColors()
-        {
-            if (pastSpriteRenderers == null || originalColors == null) return;
-
-            for (int i = 0; i < pastSpriteRenderers.Length; i++)
-            {
-                if (pastSpriteRenderers[i] != null)
-                {
-                    pastSpriteRenderers[i].color = originalColors[i];
-                }
-            }
         }
 
         private void OnValidate()
