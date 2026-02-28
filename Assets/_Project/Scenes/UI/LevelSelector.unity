@@ -1275,6 +1275,7 @@ MonoBehaviour:
     locked: 0
     lockIcon: {fileID: 0}
     levelLabel: {fileID: 1596918317}
+    firstTimeCinematicScene: Level1Cinematic
   - button: {fileID: 1989442147}
     sceneName: Level2
     useSceneIndex: 0
@@ -1282,6 +1283,7 @@ MonoBehaviour:
     locked: 1
     lockIcon: {fileID: 373512454}
     levelLabel: {fileID: 1076727001}
+    firstTimeCinematicScene: 
   - button: {fileID: 151009196}
     sceneName: Level3
     useSceneIndex: 0
@@ -1289,6 +1291,7 @@ MonoBehaviour:
     locked: 1
     lockIcon: {fileID: 1819215581}
     levelLabel: {fileID: 89474103}
+    firstTimeCinematicScene: 
   backButton: {fileID: 373557632}
   mainMenuSceneName: MainMenu
   useLoadingScreen: 1

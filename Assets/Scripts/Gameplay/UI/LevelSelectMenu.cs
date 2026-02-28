@@ -74,19 +74,44 @@ namespace Gameplay.UI
             if (AudioManager.Instance != null)
                 AudioManager.Instance.RestoreMusicVolume();
 
-            if (useLoadingScreen && LoadingScreen.Instance != null)
+            // Si hay cinemática de primera vez y no se ha visto, cargarla primero
+            string targetScene = level.sceneName;
+            int targetIndex = level.sceneIndex;
+            bool useIndex = level.useSceneIndex;
+
+            if (!string.IsNullOrEmpty(level.firstTimeCinematicScene))
             {
-                if (level.useSceneIndex)
-                    LoadingScreen.Instance.LoadScene(level.sceneIndex);
-                else
-                    LoadingScreen.Instance.LoadScene(level.sceneName);
+                string key = "CinematicSeen_" + level.firstTimeCinematicScene;
+                bool alreadySeen = PlayerPrefs.GetInt(key, 0) == 1;
+                Debug.Log($"[LevelSelectMenu] Level {index} — firstTimeCinematicScene='{level.firstTimeCinematicScene}', key='{key}', alreadySeen={alreadySeen}");
+                if (!alreadySeen)
+                {
+                    PlayerPrefs.SetInt(key, 1);
+                    PlayerPrefs.Save();
+                    targetScene = level.firstTimeCinematicScene;
+                    useIndex = false;
+                }
             }
             else
             {
-                if (level.useSceneIndex)
-                    SceneManager.LoadScene(level.sceneIndex);
+                Debug.Log($"[LevelSelectMenu] Level {index} — no firstTimeCinematicScene configurado, cargando '{targetScene}' directamente.");
+            }
+
+            Debug.Log($"[LevelSelectMenu] Cargando escena: '{targetScene}' (useIndex={useIndex})");
+
+            if (useLoadingScreen && LoadingScreen.Instance != null)
+            {
+                if (useIndex)
+                    LoadingScreen.Instance.LoadScene(targetIndex);
                 else
-                    SceneManager.LoadScene(level.sceneName);
+                    LoadingScreen.Instance.LoadScene(targetScene);
+            }
+            else
+            {
+                if (useIndex)
+                    SceneManager.LoadScene(targetIndex);
+                else
+                    SceneManager.LoadScene(targetScene);
             }
         }
 
@@ -136,5 +161,7 @@ namespace Gameplay.UI
         public GameObject lockIcon;
         [Tooltip("Optional label for level name")]
         public Text levelLabel;
+        [Tooltip("Escena de cinemática a mostrar la primera vez que se selecciona este nivel (dejar vacío para omitir)")]
+        public string firstTimeCinematicScene;
     }
 }
