@@ -99,3 +99,4 @@
 # Misc
 *.pdf binary
 *.unitypackage binary
+ios/*
