@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+using Gameplay.Masks;
 
 namespace Gameplay.UI
 {
@@ -21,12 +23,21 @@ namespace Gameplay.UI
         [SerializeField] private float targetY;
 
         private Transform player;
+        private MaskManager maskManager;
+        private Image indicatorSprite;
 
         private void Start()
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj != null)
+            {
                 player = playerObj.transform;
+                maskManager = playerObj.GetComponent<MaskManager>();
+                if (maskManager != null)
+                    maskManager.OnMaskEquipped.AddListener(OnMaskEquipped);
+            }
+
+            indicatorSprite = indicatorImage != null ? indicatorImage.GetComponent<Image>() : null;
 
             if (UIManager.Instance != null)
                 UIManager.Instance.OnDeathShown.AddListener(Hide);
@@ -34,8 +45,17 @@ namespace Gameplay.UI
 
         private void OnDestroy()
         {
+            if (maskManager != null)
+                maskManager.OnMaskEquipped.RemoveListener(OnMaskEquipped);
+
             if (UIManager.Instance != null)
                 UIManager.Instance.OnDeathShown.RemoveListener(Hide);
+        }
+
+        private void OnMaskEquipped(Gameplay.Masks.IMask mask)
+        {
+            if (indicatorSprite != null && mask.MaskSprite != null)
+                indicatorSprite.sprite = mask.MaskSprite;
         }
 
         private void Hide() => gameObject.SetActive(false);

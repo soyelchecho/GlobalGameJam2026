@@ -4700,12 +4700,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTag: Player
+  maskToEquip: {fileID: 0}
   objectToHide: {fileID: 810970916}
   destroyInsteadOfHide: 1
   equipOnPickup: 1
   pauseDuration: 1
   pickupSound: {fileID: 8300000, guid: b8e24c080df00423a86ca0f457de6b1f, type: 3}
   showMaskInfoPanel: 1
+  maskInfoSprite: {fileID: 21300000, guid: a23c3ca16ac2b0f40bf6fe7f8106420e, type: 3}
   OnPickedUp:
     m_PersistentCalls:
       m_Calls: []
@@ -6300,7 +6302,7 @@ PrefabInstance:
     - target: {fileID: 55195766067803782, guid: 9a3ce814255ee2e459bca56d6e816490,
         type: 3}
       propertyPath: orthographic size
-      value: 17.765364
+      value: 17.806692
       objectReference: {fileID: 0}
     - target: {fileID: 6908492226549947547, guid: 9a3ce814255ee2e459bca56d6e816490,
         type: 3}
@@ -8716,8 +8718,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.48, y: 3.64, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2.63, y: 2.63, z: 2.63}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1369324954}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8783,7 +8785,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 25
-  m_Sprite: {fileID: 21300000, guid: bf9f924b6f061db479f85459e70c0261, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 35c321f28e9b04a39b0075b09174a5ce, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -9153,7 +9155,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 241f401cb74471a47bd02ecdb42642e2, type: 3}
+  m_Texture: {fileID: 2800000, guid: bf9f924b6f061db479f85459e70c0261, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -9229,7 +9231,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.48, y: 3.64, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 2.63, y: 2.63, z: 2.63}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 939848407}
@@ -17634,7 +17636,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.058000002, y: 0.24000001}
   m_AnchorMax: {x: 0.085767016, y: 0.748}
-  m_AnchoredPosition: {x: -6.499817, y: 6.5}
+  m_AnchoredPosition: {x: -6.499756, y: 6.5}
   m_SizeDelta: {x: 540.2, y: 29.599976}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1711944249
@@ -18716,7 +18718,7 @@ PrefabInstance:
     - target: {fileID: 1087601680882872963, guid: a46463905d1f16944b8c935fbb174dd9,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.72
+      value: 7.03
       objectReference: {fileID: 0}
     - target: {fileID: 1087601680882872963, guid: a46463905d1f16944b8c935fbb174dd9,
         type: 3}
@@ -18782,7 +18784,7 @@ PrefabInstance:
     - target: {fileID: 3699903762013746782, guid: a46463905d1f16944b8c935fbb174dd9,
         type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.y
-      value: 0.3776029
+      value: 0.3776
       objectReference: {fileID: 0}
     - target: {fileID: 3699903762013746782, guid: a46463905d1f16944b8c935fbb174dd9,
         type: 3}
@@ -19308,7 +19310,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.34, y: -6.04}
+  m_Offset: {x: 0.34, y: -6.34}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -19727,12 +19729,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTag: Player
+  maskToEquip: {fileID: 11400000, guid: dad7b7b1dc382584e8e9b503e6a432a9, type: 2}
   objectToHide: {fileID: 878760980}
   destroyInsteadOfHide: 1
   equipOnPickup: 1
   pauseDuration: 1
   pickupSound: {fileID: 8300000, guid: b8e24c080df00423a86ca0f457de6b1f, type: 3}
   showMaskInfoPanel: 1
+  maskInfoSprite: {fileID: 21300000, guid: 9cc36b629d7f12845ab62002f6ef8aa8, type: 3}
   OnPickedUp:
     m_PersistentCalls:
       m_Calls: []

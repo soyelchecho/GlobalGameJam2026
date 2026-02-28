@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 using Gameplay.Masks;
 using Gameplay.Player;
 using Gameplay.UI;
@@ -14,6 +15,10 @@ namespace Gameplay.Interactables
     {
         [Header("Detection")]
         [SerializeField] private string playerTag = "Player";
+
+        [Header("Mask Override")]
+        [Tooltip("If set, equips this mask instead of the player's default TimeMask and updates swipe-down binding.")]
+        [SerializeField] private MaskBase maskToEquip;
 
         [Header("Visuals")]
         [Tooltip("Object to hide/destroy when picked up (optional)")]
@@ -31,6 +36,8 @@ namespace Gameplay.Interactables
         [Header("UI")]
         [Tooltip("Show mask info panel after pickup")]
         [SerializeField] private bool showMaskInfoPanel;
+        [Tooltip("Sprite to display in the mask info panel image when this mask is picked up")]
+        [SerializeField] private Sprite maskInfoSprite;
 
         [Header("Events")]
         public UnityEvent OnPickedUp;
@@ -56,6 +63,47 @@ namespace Gameplay.Interactables
 
             if (objectToHide != null)
             {
+                // Copy sprite from pickup visual onto the player's mask renderer
+                var pickupSprite = objectToHide.GetComponent<SpriteRenderer>();
+                if (pickupSprite != null)
+                {
+                    Sprite maskSprite = pickupSprite.sprite;
+
+                    // Update player mask renderer
+                    Transform playerMaskRenderer = other.transform.Find("maskRendered");
+                    if (playerMaskRenderer != null)
+                    {
+                        SpriteRenderer playerSpriteRenderer = playerMaskRenderer.GetComponent<SpriteRenderer>();
+                        if (playerSpriteRenderer != null)
+                            playerSpriteRenderer.sprite = maskSprite;
+                    }
+
+                    GameObject uiRoot = GameObject.Find("UI");
+                    if (uiRoot != null)
+                    {
+                        // Update mask info panel image
+                        if (maskInfoSprite != null)
+                        {
+                            Transform panelImage = uiRoot.transform.Find("TimeMaskPanel/Image");
+                            if (panelImage != null)
+                            {
+                                Image image = panelImage.GetComponent<Image>();
+                                if (image != null)
+                                    image.sprite = maskInfoSprite;
+                            }
+                        }
+
+                        // Update height indicator icon
+                        Transform rawImageTransform = uiRoot.transform.Find("HeightIndicator/RawImage");
+                        if (rawImageTransform != null)
+                        {
+                            RawImage rawImage = rawImageTransform.GetComponent<RawImage>();
+                            if (rawImage != null)
+                                rawImage.texture = maskSprite.texture;
+                        }
+                    }
+                }
+
                 if (destroyInsteadOfHide)
                     Destroy(objectToHide);
                 else
@@ -92,8 +140,14 @@ namespace Gameplay.Interactables
 
             // Unlock and equip mask (triggers animation)
             maskManager.UnlockMaskEquipping();
-            if (playerMaskController != null && playerMaskController.TimeMask != null)
-                maskManager.EquipMask(playerMaskController.TimeMask);
+            MaskBase maskToUse = maskToEquip != null ? maskToEquip : playerMaskController?.TimeMask;
+            if (maskToUse != null)
+            {
+                if (maskToEquip != null)
+                    maskManager.CancelCooldown();
+                maskManager.EquipMask(maskToUse);
+                playerMaskController?.SetActiveMask(maskToUse);
+            }
 
             // Pause timer while showing info panel
             maskManager.PauseTimer();

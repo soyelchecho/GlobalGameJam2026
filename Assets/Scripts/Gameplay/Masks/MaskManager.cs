@@ -227,6 +227,12 @@ namespace Gameplay.Masks
             OnMaskUnlocked?.Invoke();
         }
 
+        public void CancelCooldown()
+        {
+            isOnCooldown = false;
+            cooldownTimer = 0f;
+        }
+
         public void PauseTimer()
         {
             timerPaused = true;

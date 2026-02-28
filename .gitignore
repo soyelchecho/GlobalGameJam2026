@@ -103,6 +103,7 @@ sysinfo.txt
 *.ipa
 *.exe
 *.app
+/ios/**
 
 # -----------------------------------------------
 # Addressables & Asset Bundles

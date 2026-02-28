@@ -17,6 +17,8 @@ namespace Gameplay.Player
 
         public MaskBase TimeMask => timeMask;
 
+        public void SetActiveMask(MaskBase mask) => timeMask = mask;
+
         private void Awake()
         {
             if (maskManager == null)
