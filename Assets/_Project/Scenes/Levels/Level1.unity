@@ -5980,6 +5980,7 @@ GameObject:
   m_Component:
   - component: {fileID: 976985940}
   - component: {fileID: 976985941}
+  - component: {fileID: 976985942}
   m_Layer: 0
   m_Name: PuenteContainer
   m_TagString: Untagged
@@ -6016,38 +6017,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de5225f72293e774381fbdeaad2c674d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  presentObject: {fileID: 907360846}
+  presentObject: {fileID: 0}
   pastObject: {fileID: 0}
-  applyPastTint: 1
-  pastTint: {r: 0.7, g: 0.85, b: 1, a: 1}
   OnEnterPast:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 907360846}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: DestructBridge
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 2115697593}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: DestructBridge
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 2115697596}
+      - m_Target: {fileID: 976985942}
         m_TargetAssemblyTypeName: UnityEngine.Animator, UnityEngine
         m_MethodName: Play
         m_Mode: 5
@@ -6056,13 +6031,13 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: ReconstructBridge
-          m_BoolArgument: 1
+          m_StringArgument: Pasado
+          m_BoolArgument: 0
         m_CallState: 2
   OnEnterPresent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2115697596}
+      - m_Target: {fileID: 976985942}
         m_TargetAssemblyTypeName: UnityEngine.Animator, UnityEngine
         m_MethodName: Play
         m_Mode: 5
@@ -6071,35 +6046,32 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: DestructBridge
+          m_StringArgument: Present
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 2115697593}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 907360846}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
   immediateEnterSwitch: 1
   immediateExitSwitch: 1
+--- !u!95 &976985942
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 976985939}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 3eaa54e3e9f41174a87a58a34891fc8c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &996371446
 GameObject:
   m_ObjectHideFlags: 0
@@ -7540,37 +7512,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de5225f72293e774381fbdeaad2c674d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  presentObject: {fileID: 1121854348}
-  pastObject: {fileID: 1296152933}
-  applyPastTint: 1
-  pastTint: {r: 0.7, g: 0.85, b: 1, a: 1}
+  presentObject: {fileID: 0}
+  pastObject: {fileID: 0}
   OnEnterPast:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1121854348}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1296152933}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
       - m_Target: {fileID: 645913284}
         m_TargetAssemblyTypeName: UnityEngine.Animator, UnityEngine
         m_MethodName: Play
@@ -7581,13 +7527,25 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: ShowPilar
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
   OnEnterPresent:
     m_PersistentCalls:
-      m_Calls: []
-  immediateEnterSwitch: 1
-  immediateExitSwitch: 1
+      m_Calls:
+      - m_Target: {fileID: 645913284}
+        m_TargetAssemblyTypeName: UnityEngine.Animator, UnityEngine
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: HidePilar
+          m_BoolArgument: 0
+        m_CallState: 2
+  immediateEnterSwitch: 0
+  immediateExitSwitch: 0
 --- !u!4 &1201045992
 Transform:
   m_ObjectHideFlags: 0
@@ -7836,7 +7794,7 @@ PrefabInstance:
     - target: {fileID: 55195766067803782, guid: 9a3ce814255ee2e459bca56d6e816490,
         type: 3}
       propertyPath: orthographic size
-      value: 17.768818
+      value: 17.777779
       objectReference: {fileID: 0}
     - target: {fileID: 6908492226549947547, guid: 9a3ce814255ee2e459bca56d6e816490,
         type: 3}
@@ -10873,13 +10831,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1777865422}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.24, y: 15.94, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8.24, y: 32.64, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 931962690}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 2020745864}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1807265317
 GameObject:
@@ -12019,6 +11977,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 786295347}
+  - {fileID: 1777865423}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2036267364
@@ -14028,7 +13987,7 @@ ParticleSystem:
         m_RotationOrder: 4
     z:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -17376,7 +17335,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2115697594
 Transform:
   m_ObjectHideFlags: 0
@@ -17477,7 +17436,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2115697593}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: a36ac2c452d9b5949b70c27e920ecc00, type: 2}
   m_CullingMode: 0
@@ -17727,7 +17686,6 @@ SceneRoots:
   - {fileID: 1944750595}
   - {fileID: 1123854425}
   - {fileID: 2020745864}
-  - {fileID: 1777865423}
   - {fileID: 1640273802}
   - {fileID: 1742903547}
   - {fileID: 1973922471}
