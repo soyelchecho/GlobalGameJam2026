@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// Manages scene transitions with loading screen support.
@@ -17,6 +18,11 @@ public class GameSceneManager : MonoBehaviour
 
     [Header("Scene Configuration")]
     [SerializeField] private string[] levelSceneNames;
+
+    [Header("Fade Transition")]
+    [Tooltip("Scenes that use a simple fade to black instead of the loading screen")]
+    [SerializeField] private string[] fadeOnlyScenes;
+    [SerializeField] private float fadeDuration = 0.5f;
 
     public event Action OnLoadingStarted;
     public event Action<float> OnLoadingProgress;
@@ -60,8 +66,61 @@ public class GameSceneManager : MonoBehaviour
     /// </summary>
     public void LoadScene(string sceneName)
     {
+        Debug.Log("build sceneName " + sceneName);
         if (isLoading) return;
-        StartCoroutine(LoadSceneAsync(sceneName));
+
+        if (IsFadeOnlyScene(sceneName))
+            StartCoroutine(FadeAndLoadSceneAsync(sceneName));
+        else
+            StartCoroutine(LoadSceneAsync(sceneName));
+    }
+
+    private bool IsFadeOnlyScene(string sceneName)
+    {
+        if (fadeOnlyScenes == null) return false;
+        foreach (string s in fadeOnlyScenes)
+            if (s == sceneName) return true;
+        return false;
+    }
+
+    private IEnumerator FadeAndLoadSceneAsync(string sceneName)
+    {
+        isLoading = true;
+
+        // Create fullscreen black overlay
+        GameObject canvasObj = new GameObject("FadeCanvas");
+        DontDestroyOnLoad(canvasObj);
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 999;
+        canvasObj.AddComponent<CanvasScaler>();
+
+        GameObject imageObj = new GameObject("FadeImage");
+        imageObj.transform.SetParent(canvasObj.transform, false);
+        Image image = imageObj.AddComponent<Image>();
+        image.color = new Color(0f, 0f, 0f, 0f);
+        RectTransform rect = imageObj.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        // Fade to black
+        float elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            image.color = new Color(0f, 0f, 0f, Mathf.Clamp01(elapsed / fadeDuration));
+            yield return null;
+        }
+
+        // Load scene
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+        while (!asyncLoad.isDone)
+            yield return null;
+
+        Destroy(canvasObj);
+        isLoading = false;
     }
 
     /// <summary>

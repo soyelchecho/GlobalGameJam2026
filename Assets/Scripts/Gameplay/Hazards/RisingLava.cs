@@ -41,6 +41,12 @@ namespace Gameplay.Hazards
         [Tooltip("Maximum Y position the lava can reach (0 = no limit)")]
         [SerializeField] private float maxHeight = 0f;
 
+        [Header("Catch-up")]
+        [Tooltip("Distance ahead of lava the player must be to trigger catch-up speed")]
+        [SerializeField] private float catchUpDistance = 10f;
+        [Tooltip("Rise speed used when player is beyond catch-up distance")]
+        [SerializeField] private float catchUpSpeed = 3f;
+
         [Header("Detection")]
         [Tooltip("Tag used to identify the player")]
         [SerializeField] private string playerTag = "Player";
@@ -59,8 +65,13 @@ namespace Gameplay.Hazards
 
         private static bool playerIsDead;
 
+        private bool playIntenseThemeOnRise = true;
+        public bool PlayIntenseThemeOnRise { get => playIntenseThemeOnRise; set => playIntenseThemeOnRise = value; }
+
         private bool isRising;
         private bool hasReachedMax;
+        private Transform player;
+        private float initialDistance;
 
         public bool IsRising => isRising;
         public float RiseSpeed
@@ -72,6 +83,10 @@ namespace Gameplay.Hazards
         private void Start()
         {
             playerIsDead = false;
+
+            GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
+            if (playerObj != null)
+                player = playerObj.transform;
 
             if (startMode == LavaStartMode.OnAwake)
             {
@@ -122,8 +137,20 @@ namespace Gameplay.Hazards
         {
             if (!isRising || playerIsDead) return;
 
-            // Rise upward
-            transform.position += Vector3.up * riseSpeed * Time.deltaTime;
+            // Rise upward, speeding up if player is too far ahead
+            float currentSpeed = riseSpeed;
+            if (player != null && catchUpDistance > 0f)
+            {
+                float distance = (player.position.y - transform.position.y) - initialDistance;
+                if (distance > catchUpDistance * 1.5f)
+                    currentSpeed = catchUpSpeed * 4f;
+                else if (distance > catchUpDistance * 1.25f)
+                    currentSpeed = catchUpSpeed * 2f;
+                else if (distance > catchUpDistance)
+                    currentSpeed = catchUpSpeed;
+            }
+
+            transform.position += Vector3.up * currentSpeed * Time.deltaTime;
 
             // Check max height
             if (maxHeight > 0 && !hasReachedMax && transform.position.y >= maxHeight)
@@ -206,10 +233,14 @@ namespace Gameplay.Hazards
         private IEnumerator StartRisingAfterDelay()
         {
             yield return new WaitForSeconds(startDelay);
+
+            if (player != null)
+                initialDistance = player.position.y - transform.position.y;
+
             isRising = true;
 
             // Switch to intense music
-            if (AudioManager.Instance != null)
+            if (playIntenseThemeOnRise && AudioManager.Instance != null)
                 AudioManager.Instance.PlayIntenseTheme();
         }
 

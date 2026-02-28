@@ -33,6 +33,7 @@ namespace Gameplay.Audio
         private AudioSource activeSource;
         private Coroutine crossfadeCoroutine;
         private float duckMultiplier = 1f;
+        private bool suppressed = false;
 
         private void Awake()
         {
@@ -91,9 +92,18 @@ namespace Gameplay.Audio
             CrossfadeTo(intenseTheme);
         }
 
+        /// <summary>Prevent any music from playing (used by FinalLevelMusicManager).</summary>
+        public void Suppress()
+        {
+            suppressed = true;
+            StopMusic();
+        }
+
+        public void Unsuppress() => suppressed = false;
+
         private void CrossfadeTo(AudioClip clip)
         {
-            if (clip == null) return;
+            if (clip == null || suppressed) return;
 
             if (crossfadeCoroutine != null)
                 StopCoroutine(crossfadeCoroutine);

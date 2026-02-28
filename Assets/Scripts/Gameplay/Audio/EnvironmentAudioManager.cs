@@ -241,6 +241,15 @@ namespace Gameplay.Audio
         // PERIODIC CRYSTAL
         // ==========================================
 
+        public void StopPeriodicCrystal()
+        {
+            if (periodicCrystalCoroutine != null)
+            {
+                StopCoroutine(periodicCrystalCoroutine);
+                periodicCrystalCoroutine = null;
+            }
+        }
+
         private IEnumerator PeriodicCrystalLoop()
         {
             while (true)
