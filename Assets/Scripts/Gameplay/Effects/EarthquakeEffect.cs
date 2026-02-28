@@ -52,6 +52,7 @@ namespace Gameplay.Effects
 
         private bool    isShaking;
         private Vector3 shakeOffset;
+        private Vector3 lastShakeApplied;
 
         // -------------------------------------------------------
 
@@ -83,9 +84,14 @@ namespace Gameplay.Effects
 
         private void LateUpdate()
         {
-            // Additive shake offset applied AFTER all other camera scripts have set the position
-            if (isShaking && targetCamera != null)
-                targetCamera.transform.position += shakeOffset;
+            if (targetCamera == null) return;
+
+            // Undo last frame's offset so the camera follow scripts always read a clean position
+            targetCamera.transform.position -= lastShakeApplied;
+
+            // Apply current frame's offset (zero when not shaking → restores camera cleanly)
+            lastShakeApplied = isShaking ? shakeOffset : Vector3.zero;
+            targetCamera.transform.position += lastShakeApplied;
         }
 
         // -------------------------------------------------------

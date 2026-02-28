@@ -3709,6 +3709,7 @@ MonoBehaviour:
   pauseDuration: 1
   pickupSound: {fileID: 8300000, guid: b8e24c080df00423a86ca0f457de6b1f, type: 3}
   showMaskInfoPanel: 1
+  maskInfoSprite: {fileID: 0}
   OnPickedUp:
     m_PersistentCalls:
       m_Calls: []
@@ -5500,6 +5501,7 @@ MonoBehaviour:
   loadNextLevel: 1
   specificSceneName: LevelSelector
   specificSceneIndex: 1
+  levelIndexToUnlock: 2
   delayBeforeTransition: 0
   freezePlayerOnTrigger: 1
 --- !u!61 &648666782

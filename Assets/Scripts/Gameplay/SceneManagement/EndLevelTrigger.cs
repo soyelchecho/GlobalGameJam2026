@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Gameplay.Player;
+using Gameplay.SceneManagement;
 
 
 /// <summary>
@@ -15,6 +16,10 @@ public class EndLevelTrigger : MonoBehaviour
     [SerializeField] private bool loadNextLevel = true;
     [SerializeField] private string specificSceneName;
     [SerializeField] private int specificSceneIndex = -1;
+
+    [Header("Level Progress")]
+    [Tooltip("Index of the level to unlock when this trigger fires. Set to the NEXT level index (e.g. Level 1 completes → set 1 to unlock Level 2, Level 2 → set 2 to unlock Level 3). -1 = nothing.")]
+    [SerializeField] private int levelIndexToUnlock = -1;
 
     [Header("Optional Effects")]
     [SerializeField] private float delayBeforeTransition = 0f;
@@ -47,6 +52,9 @@ public class EndLevelTrigger : MonoBehaviour
 
     private void TriggerLevelEnd(GameObject player)
     {
+        if (levelIndexToUnlock >= 0)
+            LevelProgressManager.UnlockLevel(levelIndexToUnlock);
+
         OnLevelEnd?.Invoke();
 
         if (freezePlayerOnTrigger)

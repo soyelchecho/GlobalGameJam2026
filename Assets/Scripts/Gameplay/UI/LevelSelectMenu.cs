@@ -3,6 +3,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Gameplay.Audio;
+using Gameplay.SceneManagement;
 
 namespace Gameplay.UI
 {
@@ -49,10 +50,16 @@ namespace Gameplay.UI
             {
                 int levelIndex = i;
                 if (levels[i].button != null)
-                {
                     levels[i].button.onClick.AddListener(() => SelectLevel(levelIndex));
-                }
             }
+
+            RefreshLockStates();
+        }
+
+        private void RefreshLockStates()
+        {
+            for (int i = 0; i < levels.Length; i++)
+                SetLevelLocked(i, !LevelProgressManager.IsLevelUnlocked(i));
         }
 
         private void SelectLevel(int index)
@@ -106,6 +113,9 @@ namespace Gameplay.UI
 
             if (levels[index].lockIcon != null)
                 levels[index].lockIcon.SetActive(locked);
+
+            if (levels[index].button != null)
+                levels[index].button.interactable = !locked;
         }
     }
 
