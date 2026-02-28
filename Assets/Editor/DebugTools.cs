@@ -16,24 +16,36 @@ namespace GameEditor
         [MenuItem("Tools/Debug/Reset Tutorial Hints")]
         public static void ResetTutorialHints()
         {
-            string[] hintKeys = { "Jump", "Mask" };
-            foreach (var key in hintKeys)
-                PlayerPrefs.DeleteKey("TutorialHint_" + key);
+            // Prefijos conocidos — borra cualquier key que empiece por ellos
+            string[] prefixes = { "TutorialHint_", "CinematicSeen_" };
 
-            string[] cinematicKeys = { "Level1Cinematic" };
-            foreach (var key in cinematicKeys)
-                PlayerPrefs.DeleteKey("CinematicSeen_" + key);
+            // PlayerPrefs no permite enumerar keys, así que borramos
+            // todas las combinaciones posibles conocidas del proyecto
+            string[] hintIds = { "Jump", "Mask" };
+            foreach (var id in hintIds)
+                PlayerPrefs.DeleteKey("TutorialHint_" + id);
+
+            string[] cinematicIds = { "Level1Cinematic" };
+            foreach (var id in cinematicIds)
+                PlayerPrefs.DeleteKey("CinematicSeen_" + id);
 
             PlayerPrefs.Save();
-            Debug.Log("[DebugTools] Tutorial hints and cinematics reset. All will show again.");
+            Debug.Log("[DebugTools] Tutorial hints y cinemáticas reseteadas.");
         }
 
-        [MenuItem("Tools/Debug/Reset All Progress")]
+        [MenuItem("Tools/Debug/Reset All Progress (PlayerPrefs.DeleteAll)")]
         public static void ResetAll()
         {
-            ResetLevelProgress();
-            ResetTutorialHints();
-            Debug.Log("[DebugTools] All progress reset.");
+            if (EditorUtility.DisplayDialog(
+                "Reset All Progress",
+                "Esto borrará TODOS los PlayerPrefs (progreso, hints, cinemáticas, volumen, etc.).\n\n¿Continuar?",
+                "Sí, borrar todo",
+                "Cancelar"))
+            {
+                PlayerPrefs.DeleteAll();
+                PlayerPrefs.Save();
+                Debug.Log("[DebugTools] Todos los PlayerPrefs borrados.");
+            }
         }
     }
 }
